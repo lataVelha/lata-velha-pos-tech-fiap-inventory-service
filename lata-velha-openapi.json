@@ -1,0 +1,3372 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Lata Velha \u2014 API de Oficina Mec\u00e2nica",
+        "description": "API de gerenciamento de Ordens de Servi\u00e7o para oficina mec\u00e2nica.\n\n**Perfis:** ATENDENTE (abre OS, aprova servi\u00e7os, entrega ve\u00edculo) \u00b7 MECANICO (diagn\u00f3stico e execu\u00e7\u00e3o) \u00b7 ADMIN (acesso total ao sistema)\n\n---\n\n**Fluxo principal da OS:**\n\n1. `POST /ordens-servico` \u2014 ATENDENTE abre a OS \u2192 status `RECEBIDA`\n2. `PATCH /ordens-servico/{idOs}/iniciar-diagnostico` \u2014 MECANICO assume a OS \u2192 `EM_DIAGNOSTICO`\n3. `PATCH /ordens-servico/adiciona-servico` \u2014 MECANICO adiciona servi\u00e7os e pe\u00e7as (pode chamar m\u00faltiplas vezes)\n4. `PATCH /ordens-servico/{idOs}/finalizar-diagnostico` \u2014 MECANICO encerra diagn\u00f3stico \u2192 `AGUARDANDO_APROVACAO` _(e-mail de aprova\u00e7\u00e3o da ordem de servi\u00e7o ao propriet\u00e1rio)_\n5. `PATCH /ordens-servico/aprovar` \u2014 ATENDENTE aprova ou recusa cada servi\u00e7o \u2192 `APROVADA` _(e-mail de confirma\u00e7\u00e3o ao propriet\u00e1rio; e-mail ao ADMIN se houver pe\u00e7as a encomendar)_\n6. `PATCH /ordens-servico/{idOs}/iniciar-servico/{servicoId}` \u2014 MECANICO inicia um servi\u00e7o por vez \u2192 servi\u00e7o `EM_EXECUCAO`\n7. `PATCH /ordens-servico/{idOs}/finalizar-servico/{servicoId}` \u2014 MECANICO conclui o servi\u00e7o \u2192 servi\u00e7o `FINALIZADO` _(ao finalizar o \u00faltimo: OS \u2192 `FINALIZADA` e e-mail ao propriet\u00e1rio)_\n8. `PATCH /ordens-servico/{idOs}/retirar-veiculo` \u2014 ATENDENTE registra entrega \u2192 `ENTREGUE`\n\n---\n\n**Fluxo de recusa:**\n\n- `PATCH /ordens-servico/aprovar` com servi\u00e7os marcados como `RECUSADO` \u2014 recusa parcial (mant\u00e9m ao menos um `APROVADO`)\n- `PATCH /ordens-servico/{idOs}/reprovar` \u2014 ATENDENTE recusa a OS inteira \u2192 `REPROVADA` (terminal, nenhum servi\u00e7o \u00e9 executado)\n\n---\n\n**Notifica\u00e7\u00f5es autom\u00e1ticas por e-mail:**\n- Propriet\u00e1rio, ao ser cadastrado pelo atendente (propriet\u00e1rio cadastrado)\n- Propriet\u00e1rio, ao atendente criar a ordem de servi\u00e7o (ordem de servi\u00e7o aberta)\n- Propriet\u00e1rio, ao mec\u00e2nico iniciar o diagn\u00f3stico (diagn\u00f3stico iniciado)\n- Propriet\u00e1rio, ao mec\u00e2nico finalizar o diagn\u00f3stico (diagn\u00f3stico finalizado com lista de servi\u00e7os identificados)\n- Propriet\u00e1rio, ao atendente aprovar ordem de servi\u00e7o (ordem de servi\u00e7o aprovada)\n- Propriet\u00e1rio, ao atendente reprovar ordem de servi\u00e7o (ordem de servi\u00e7o reprovada, retirar ve\u00edculo)\n- Administrador, ao aprovar a execu\u00e7\u00e3o do servi\u00e7o com pe\u00e7a sem estoque suficiente (encomenda de pe\u00e7a)\n- Propriet\u00e1rio, ao mec\u00e2nico iniciar a primeira execu\u00e7\u00e3o do servi\u00e7o (servi\u00e7os em execu\u00e7\u00e3o)\n- Propriet\u00e1rio, ao mec\u00e2nico finalizar todos os servi\u00e7os (ve\u00edculo pronto para retirada)\n- Propriet\u00e1rio, ao retirar ve\u00edculo da oficia (ve\u00edculo entregue)\n\n---\n\n**Autentica\u00e7\u00e3o:** todos os endpoints exigem `Bearer <token>` \u2014 obtenha via `POST /auth/login`.\n",
+        "contact": {
+            "name": "Equipe Lata Velha"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Servi\u00e7os",
+            "description": "Cat\u00e1logo de servi\u00e7os dispon\u00edveis na oficina. Os servi\u00e7os cadastrados aqui s\u00e3o os que o mec\u00e2nico pode adicionar a uma Ordem de Servi\u00e7o durante o diagn\u00f3stico."
+        },
+        {
+            "name": "Funcion\u00e1rios",
+            "description": "Cadastro e gerenciamento de funcion\u00e1rios. O cargo define as permiss\u00f5es: ATENDENTE, MECANICO ou ADMIN."
+        },
+        {
+            "name": "Autentica\u00e7\u00e3o",
+            "description": "Autentica\u00e7\u00e3o de funcion\u00e1rios via JWT. \u00c9 o \u00fanico endpoint p\u00fablico da API \u2014 todos os demais requerem o token obtido aqui no header Authorization: Bearer <token>."
+        },
+        {
+            "name": "Pe\u00e7as",
+            "description": "Cat\u00e1logo de pe\u00e7as utilizadas nos servi\u00e7os da oficina. Cada pe\u00e7a possui um valor unit\u00e1rio e um controle de estoque associado. As pe\u00e7as devem ser cadastradas aqui antes de serem adicionadas aos servi\u00e7os de uma OS."
+        },
+        {
+            "name": "Propriet\u00e1rios",
+            "description": "Cadastro e gerenciamento de propriet\u00e1rios. Deve ser cadastrado antes de registrar ve\u00edculos e abrir OS. O e-mail \u00e9 usado para notifica\u00e7\u00f5es."
+        },
+        {
+            "name": "Ordens de Servi\u00e7o",
+            "description": "Ciclo de vida completo das OS: abertura, diagn\u00f3stico, aprova\u00e7\u00e3o, execu\u00e7\u00e3o e entrega do ve\u00edculo."
+        },
+        {
+            "name": "Estoque de Pe\u00e7as",
+            "description": "Controle de estoque. `quantidadeArmazenada` = total f\u00edsico; `quantidadeDisponivel` = total menos reservas de OS ativas. Pe\u00e7as s\u00e3o reservadas ao aprovar servi\u00e7os e baixadas ao retirar o ve\u00edculo."
+        },
+        {
+            "name": "Ve\u00edculos",
+            "description": "Cadastro e gerenciamento de ve\u00edculos. Um ve\u00edculo deve estar vinculado a um propriet\u00e1rio e ser cadastrado antes de ser inclu\u00eddo em uma Ordem de Servi\u00e7o."
+        }
+    ],
+    "paths": {
+        "/veiculos/{id}": {
+            "get": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Buscar ve\u00edculo por ID",
+                "operationId": "buscarPorId",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ve\u00edculo encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ve\u00edculo n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Atualizar ve\u00edculo",
+                "operationId": "atualizar",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VeiculoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Ve\u00edculo ou propriet\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ve\u00edculo atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/servicos/{id}": {
+            "get": {
+                "tags": [
+                    "Servi\u00e7os"
+                ],
+                "summary": "Buscar servi\u00e7o por ID",
+                "operationId": "buscarPorId_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Servi\u00e7o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Servi\u00e7o n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Servi\u00e7os"
+                ],
+                "summary": "Atualizar informa\u00e7\u00f5es do servi\u00e7o",
+                "operationId": "atualizar_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AtualizarServicoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Servi\u00e7o atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Servi\u00e7o n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/proprietarios/{id}": {
+            "get": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Buscar propriet\u00e1rio por ID",
+                "operationId": "buscarPorId_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Propriet\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Propriet\u00e1rio encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Atualizar propriet\u00e1rio",
+                "operationId": "atualizar_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProprietarioRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Propriet\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Propriet\u00e1rio atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas/{id}": {
+            "get": {
+                "tags": [
+                    "Pe\u00e7as"
+                ],
+                "summary": "Buscar pe\u00e7a por ID",
+                "operationId": "buscarPorId_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Pe\u00e7a encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Pe\u00e7as"
+                ],
+                "summary": "Atualizar informa\u00e7\u00f5es da pe\u00e7a",
+                "operationId": "atualizar_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AtualizarPecaRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pe\u00e7a atualizada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/funcionarios/{id}": {
+            "get": {
+                "tags": [
+                    "Funcion\u00e1rios"
+                ],
+                "summary": "Buscar funcion\u00e1rio por ID",
+                "operationId": "buscarPorId_4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Funcion\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Funcion\u00e1rio encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Funcion\u00e1rios"
+                ],
+                "summary": "Atualizar funcion\u00e1rio",
+                "description": "Atualiza nome e cargo. Senha e username n\u00e3o s\u00e3o alterados por este endpoint.",
+                "operationId": "atualizar_4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AtualizarFuncionarioRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Funcion\u00e1rio atualizado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Funcion\u00e1rio ou cargo n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/veiculos": {
+            "get": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Listar ve\u00edculos ativos paginado",
+                "operationId": "listar",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ve\u00edculos listados",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultVeiculoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Cadastrar ve\u00edculo",
+                "description": "Registra um novo ve\u00edculo vinculado a um propriet\u00e1rio existente. A placa deve ser \u00fanica no sistema.",
+                "operationId": "cadastrar",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VeiculoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Ve\u00edculo cadastrado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Placa j\u00e1 cadastrada para outro ve\u00edculo",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos \u2014 campos obrigat\u00f3rios ausentes",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Propriet\u00e1rio n\u00e3o encontrado (proprietarioId inv\u00e1lido)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/servicos": {
+            "get": {
+                "tags": [
+                    "Servi\u00e7os"
+                ],
+                "summary": "Listar todos os servi\u00e7os ativos",
+                "description": "Retorna lista de servi\u00e7os ativos no sistema",
+                "operationId": "listar_1",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Servi\u00e7os listados",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Servi\u00e7os"
+                ],
+                "summary": "Cadastrar novo servi\u00e7o",
+                "description": "Adiciona um novo tipo de servi\u00e7o ao cat\u00e1logo da oficina. Ex: 'Troca de \u00f3leo', 'Alinhamento', 'Balanceamento'. O servi\u00e7o pode ser associado a pe\u00e7as quando adicionado a uma OS.",
+                "operationId": "cadastrar_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CadastrarServicoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Servi\u00e7o criado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/proprietarios": {
+            "get": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Listar propriet\u00e1rios ativos",
+                "operationId": "listar_2",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada de propriet\u00e1rios ativos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Cadastrar propriet\u00e1rio",
+                "description": "Registra propriet\u00e1rio com dados pessoais e endere\u00e7o. O e-mail ser\u00e1 usado para notifica\u00e7\u00f5es das OS.",
+                "operationId": "cadastrar_2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProprietarioRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Propriet\u00e1rio criado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "CPF/CNPJ j\u00e1 cadastrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas": {
+            "get": {
+                "tags": [
+                    "Pe\u00e7as"
+                ],
+                "summary": "Listar todas as pe\u00e7as ativas",
+                "description": "Retorna lista de pe\u00e7as ativas no sistema",
+                "operationId": "listar_3",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pe\u00e7as listadas",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultPecaResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Pe\u00e7as"
+                ],
+                "summary": "Cadastrar nova pe\u00e7a",
+                "description": "Registra uma nova pe\u00e7a no cat\u00e1logo. Ap\u00f3s o cadastro, o estoque \u00e9 iniciado automaticamente com saldo zero \u2014 use `POST /pecas/{pecaId}/estoque/entrada` para adicionar estoque.",
+                "operationId": "cadastrar_3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CadastrarPecaRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pe\u00e7a criada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas/{pecaId}/estoque/saida": {
+            "post": {
+                "tags": [
+                    "Estoque de Pe\u00e7as"
+                ],
+                "summary": "Registrar sa\u00edda manual do estoque",
+                "description": "Sa\u00edda manual de estoque. Sa\u00eddas vinculadas a OS s\u00e3o processadas automaticamente ao retirar o ve\u00edculo.",
+                "operationId": "saida",
+                "parameters": [
+                    {
+                        "name": "pecaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MovimentarPecaEstoqueRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Quantidade inv\u00e1lida ou saldo insuficiente para a sa\u00edda solicitada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pe\u00e7a ou estoque n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Sa\u00edda registrada \u2014 retorna estoque atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas/{pecaId}/estoque/entrada": {
+            "post": {
+                "tags": [
+                    "Estoque de Pe\u00e7as"
+                ],
+                "summary": "Registrar entrada no estoque",
+                "description": "Incrementa a quantidade armazenada. Use ao receber pe\u00e7as de fornecedores.",
+                "operationId": "entrada",
+                "parameters": [
+                    {
+                        "name": "pecaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MovimentarPecaEstoqueRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Entrada registrada \u2014 retorna estoque atualizado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Quantidade inv\u00e1lida (deve ser maior que zero)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico": {
+            "get": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Listar ordens de servi\u00e7o",
+                "description": "Lista paginada de OS com filtros opcionais por `id`, `status`, `proprietarioId` e `mecanicoId`. Todos os filtros s\u00e3o combin\u00e1veis.",
+                "operationId": "getOrdems",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "Filtrar por ID da OS",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtrar por status da OS",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "RECEBIDA",
+                                "EM_DIAGNOSTICO",
+                                "AGUARDANDO_APROVACAO",
+                                "APROVADA",
+                                "EM_EXECUCAO",
+                                "FINALIZADA",
+                                "REPROVADA",
+                                "ENTREGUE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "proprietarioId",
+                        "in": "query",
+                        "description": "Filtrar por ID do propriet\u00e1rio",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "mecanicoId",
+                        "in": "query",
+                        "description": "Filtrar por ID do mec\u00e2nico",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada retornada com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Abrir ordem de servi\u00e7o",
+                "description": "**ATENDENTE** \u2014 Registra a entrada do ve\u00edculo e a reclama\u00e7\u00e3o do propriet\u00e1rio. O atendente logado \u00e9 vinculado automaticamente. Status resultante: `RECEBIDA`.",
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrdemServicoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "400": {
+                        "description": "Dados inv\u00e1lidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ve\u00edculo, propriet\u00e1rio ou atendente n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "OS criada \u2014 status RECEBIDA",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{id}/aprovacao-orcamento": {
+            "post": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Receber aprova\u00e7\u00e3o de or\u00e7amento do cliente",
+                "description": "**Webhook aberto** \u2014 Endpoint chamado pelo cliente (sem autentica\u00e7\u00e3o) para informar quais servi\u00e7os do or\u00e7amento foram aprovados ou recusados. Ao menos um servi\u00e7o deve ser aprovado para a OS seguir para execu\u00e7\u00e3o.",
+                "operationId": "receberAprovacaoOrcamento",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReceberAprovacaoOrcamentoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Aprova\u00e7\u00e3o processada \u2014 retorna ID da OS e novo status",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 em AGUARDANDO_APROVACAO",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "OS n\u00e3o encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ViewModel"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos ou servi\u00e7os n\u00e3o pertencem \u00e0 OS",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ViewModel"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico/completa": {
+            "post": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Abrir ordem de servi\u00e7o com cadastro completo",
+                "description": "**ATENDENTE** \u2014 Cadastra propriet\u00e1rio e ve\u00edculo (dados completos) e abre a OS em uma \u00fanica requisi\u00e7\u00e3o, opcionalmente j\u00e1 vinculando servi\u00e7os/pe\u00e7as (referenciados por Id). O atendente logado \u00e9 vinculado automaticamente. Status resultante: `RECEBIDA`.",
+                "operationId": "createCompleta",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrdemServicoCompletaRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Atendente, servi\u00e7o ou pe\u00e7a n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Propriet\u00e1rio, ve\u00edculo e OS criados \u2014 status RECEBIDA",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrdemServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/funcionarios": {
+            "post": {
+                "tags": [
+                    "Funcion\u00e1rios"
+                ],
+                "summary": "Cadastrar novo funcion\u00e1rio",
+                "description": "Cria funcion\u00e1rio e usu\u00e1rio de acesso (login/senha) vinculados a um cargo existente.",
+                "operationId": "cadastrar_4",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CadastrarFuncionarioRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Cargo n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Funcion\u00e1rio criado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FuncionarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "summary": "Realizar login",
+                "description": "Autentica o funcion\u00e1rio e retorna um token JWT. Clique em **Authorize** no topo da p\u00e1gina e cole o token para autenticar os demais endpoints.",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso \u2014 use o campo `token` para autenticar os demais endpoints",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais inv\u00e1lidas \u2014 username ou senha incorretos",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/veiculos/{id}/reativar": {
+            "patch": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Reativar ve\u00edculo",
+                "operationId": "reativar",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Ve\u00edculo inativo n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Ve\u00edculo reativado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VeiculoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/veiculos/{id}/desativar": {
+            "patch": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Desativar ve\u00edculo (soft delete)",
+                "operationId": "desativar",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Ve\u00edculo desativado"
+                    },
+                    "404": {
+                        "description": "Ve\u00edculo n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/servicos/{id}/desativar": {
+            "patch": {
+                "tags": [
+                    "Servi\u00e7os"
+                ],
+                "summary": "Desativar servi\u00e7o (Soft Delete)",
+                "description": "Inativa o servi\u00e7o do cat\u00e1logo sem excluir o registro. Servi\u00e7os desativados n\u00e3o podem ser adicionados a novas OS, mas OS existentes que j\u00e1 utilizam o servi\u00e7o n\u00e3o s\u00e3o afetadas.",
+                "operationId": "desativar_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Servi\u00e7o desativado"
+                    },
+                    "404": {
+                        "description": "Servi\u00e7o n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/proprietarios/{id}/reativar": {
+            "patch": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Reativar propriet\u00e1rio",
+                "operationId": "reativar_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Propriet\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Propriet\u00e1rio reativado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/proprietarios/{id}/desativar": {
+            "patch": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Desativar propriet\u00e1rio",
+                "description": "Soft delete \u2014 inativa o registro sem exclu\u00ed-lo.",
+                "operationId": "desativar_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Propriet\u00e1rio desativado com sucesso"
+                    },
+                    "404": {
+                        "description": "Propriet\u00e1rio n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/pecas/{pecaId}/estoque/ajuste": {
+            "patch": {
+                "tags": [
+                    "Estoque de Pe\u00e7as"
+                ],
+                "summary": "Ajustar saldo do estoque",
+                "description": "Substitui o saldo atual pelo valor informado. Use para corrigir diverg\u00eancias de invent\u00e1rio.",
+                "operationId": "ajustar",
+                "parameters": [
+                    {
+                        "name": "pecaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AjustarPecaEstoqueRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Saldo ajustado para o valor informado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Valor de ajuste inv\u00e1lido (n\u00e3o pode ser negativo)",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas/{id}/desativar": {
+            "patch": {
+                "tags": [
+                    "Pe\u00e7as"
+                ],
+                "summary": "Desativar pe\u00e7a (Soft Delete)",
+                "description": "Inativa a pe\u00e7a do cat\u00e1logo. Pe\u00e7as desativadas n\u00e3o podem ser adicionadas a novos servi\u00e7os, mas OS existentes que j\u00e1 utilizam a pe\u00e7a n\u00e3o s\u00e3o afetadas.",
+                "operationId": "desativar_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada"
+                    },
+                    "204": {
+                        "description": "Pe\u00e7a desativada"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/retirar-veiculo": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Registrar retirada do ve\u00edculo",
+                "description": "**ATENDENTE** \u2014 Registra a entrega do ve\u00edculo ao propriet\u00e1rio. Baixa definitivamente o estoque das pe\u00e7as instaladas e retorna os totais financeiros da OS. Transi\u00e7\u00e3o: `FINALIZADA` \u2192 `ENTREGUE` (terminal).",
+                "operationId": "removeVehicle",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 no status FINALIZADA"
+                    },
+                    "200": {
+                        "description": "Ve\u00edculo entregue \u2014 status ENTREGUE. Resposta inclui totais financeiros."
+                    },
+                    "404": {
+                        "description": "OS ou funcion\u00e1rio n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/reprovar": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Reprovar a OS inteira",
+                "description": "**ATENDENTE** \u2014 Recusa todos os servi\u00e7os e encerra a OS. Use quando o propriet\u00e1rio recusar todos os servi\u00e7os identificados. Para aprova\u00e7\u00e3o parcial, use `PATCH /aprovar`. Transi\u00e7\u00e3o: `AGUARDANDO_APROVACAO` \u2192 `REPROVADA` (terminal).",
+                "operationId": "reprove",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OS reprovada \u2014 status REPROVADA"
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 no status AGUARDANDO_APROVACAO"
+                    },
+                    "404": {
+                        "description": "OS ou funcion\u00e1rio n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/iniciar-servico/{servicoId}": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Iniciar execu\u00e7\u00e3o de um servi\u00e7o",
+                "description": "**MECANICO** \u2014 Inicia a execu\u00e7\u00e3o de um servi\u00e7o aprovado. Apenas um servi\u00e7o pode estar em execu\u00e7\u00e3o por vez. Status do servi\u00e7o: `APROVADO` \u2192 `EM_EXECUCAO`.",
+                "operationId": "startService",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    },
+                    {
+                        "name": "servicoId",
+                        "in": "path",
+                        "description": "ID do servi\u00e7o a iniciar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Execu\u00e7\u00e3o iniciada \u2014 status do servi\u00e7o: EM_EXECUCAO"
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 em EM_EXECUCAO, servi\u00e7o n\u00e3o est\u00e1 APROVADO ou j\u00e1 h\u00e1 outro em execu\u00e7\u00e3o"
+                    },
+                    "404": {
+                        "description": "OS, servi\u00e7o ou mec\u00e2nico n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/iniciar-diagnostico": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Iniciar diagn\u00f3stico",
+                "description": "**MECANICO** \u2014 Mec\u00e2nico logado assume a OS e inicia a inspe\u00e7\u00e3o. Transi\u00e7\u00e3o: `RECEBIDA` \u2192 `EM_DIAGNOSTICO`.",
+                "operationId": "startDiagnostic",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Diagn\u00f3stico iniciado \u2014 status EM_DIAGNOSTICO"
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 no status RECEBIDA"
+                    },
+                    "404": {
+                        "description": "OS ou mec\u00e2nico n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/finalizar-servico/{servicoId}": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Finalizar execu\u00e7\u00e3o de um servi\u00e7o",
+                "description": "**MECANICO** \u2014 Conclui um servi\u00e7o (`EM_EXECUCAO` \u2192 `FINALIZADO`). Ao finalizar o \u00faltimo servi\u00e7o, a OS passa para `FINALIZADA` e um e-mail \u00e9 enviado ao propriet\u00e1rio.",
+                "operationId": "finishService",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    },
+                    {
+                        "name": "servicoId",
+                        "in": "path",
+                        "description": "ID do servi\u00e7o a finalizar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Servi\u00e7o finalizado. Se for o \u00faltimo, OS \u2192 FINALIZADA e e-mail enviado ao propriet\u00e1rio."
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 em EM_EXECUCAO ou servi\u00e7o n\u00e3o est\u00e1 em EM_EXECUCAO"
+                    },
+                    "404": {
+                        "description": "OS, servi\u00e7o ou mec\u00e2nico n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/finalizar-diagnostico": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Finalizar diagn\u00f3stico",
+                "description": "**MECANICO** \u2014 Encerra o diagn\u00f3stico e envia e-mail ao propriet\u00e1rio com os servi\u00e7os identificados. Transi\u00e7\u00e3o: `EM_DIAGNOSTICO` \u2192 `AGUARDANDO_APROVACAO`.",
+                "operationId": "finalDiagnostic",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "responses": {
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 no status EM_DIAGNOSTICO"
+                    },
+                    "200": {
+                        "description": "Diagn\u00f3stico finalizado \u2014 status AGUARDANDO_APROVACAO. E-mail enviado ao propriet\u00e1rio."
+                    },
+                    "404": {
+                        "description": "OS ou mec\u00e2nico n\u00e3o encontrado"
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/aprovar": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Aprovar ou reprovar servi\u00e7os da OS",
+                "description": "**ATENDENTE** \u2014 Avalia cada servi\u00e7o com `APROVADO` ou `RECUSADO`. Servi\u00e7os n\u00e3o informados s\u00e3o automaticamente recusados. Pelo menos um deve ser aprovado.\n\nAo aprovar: pe\u00e7as s\u00e3o reservadas no estoque; se insuficiente, e-mail \u00e9 enviado ao ADMIN para encomenda. E-mail de confirma\u00e7\u00e3o enviado ao propriet\u00e1rio. Transi\u00e7\u00e3o: `AGUARDANDO_APROVACAO` \u2192 `APROVADA`.",
+                "operationId": "approve",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AprovarOrdemServicoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OS aprovada com totais calculados",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AprovarOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "OS n\u00e3o est\u00e1 em AGUARDANDO_APROVACAO ou nenhum servi\u00e7o foi aprovado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AprovarOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Status inv\u00e1lido ou ID de servi\u00e7o n\u00e3o pertence \u00e0 OS",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AprovarOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "OS ou funcion\u00e1rio n\u00e3o encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AprovarOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico/{idOs}/adicionar-servico": {
+            "patch": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Adicionar servi\u00e7os \u00e0 OS",
+                "description": "**MECANICO** \u2014 Adiciona servi\u00e7os (com m\u00e3o de obra e pe\u00e7as) durante o diagn\u00f3stico. O mesmo servi\u00e7o n\u00e3o pode ser adicionado duas vezes. Status inicial do servi\u00e7o: `PENDENTE`.",
+                "operationId": "addService",
+                "parameters": [
+                    {
+                        "name": "idOs",
+                        "in": "path",
+                        "description": "ID da ordem de servi\u00e7o",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "example": 20
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddServicoRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Servi\u00e7os adicionados com sucesso"
+                    },
+                    "400": {
+                        "description": "Dados inv\u00e1lidos"
+                    },
+                    "404": {
+                        "description": "OS, servi\u00e7o ou pe\u00e7a n\u00e3o encontrada"
+                    },
+                    "422": {
+                        "description": "Servi\u00e7o j\u00e1 adicionado ou status da OS n\u00e3o permite adi\u00e7\u00e3o"
+                    }
+                }
+            }
+        },
+        "/funcionarios/{id}/desativar": {
+            "patch": {
+                "tags": [
+                    "Funcion\u00e1rios"
+                ],
+                "summary": "Desativar funcion\u00e1rio",
+                "description": "Soft delete \u2014 o funcion\u00e1rio \u00e9 inativado e n\u00e3o poder\u00e1 fazer login.",
+                "operationId": "desativar_4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Funcion\u00e1rio n\u00e3o encontrado"
+                    },
+                    "204": {
+                        "description": "Funcion\u00e1rio desativado com sucesso"
+                    }
+                }
+            }
+        },
+        "/veiculos/proprietario/{proprietarioId}": {
+            "get": {
+                "tags": [
+                    "Ve\u00edculos"
+                ],
+                "summary": "Listar ve\u00edculos de um propriet\u00e1rio",
+                "description": "Retorna todos os ve\u00edculos ativos vinculados a um propriet\u00e1rio. \u00datil na abertura de uma OS para selecionar o ve\u00edculo do propriet\u00e1rio.",
+                "operationId": "listarPorProprietario",
+                "parameters": [
+                    {
+                        "name": "proprietarioId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de ve\u00edculos do propriet\u00e1rio",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/VeiculoResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/proprietarios/documento/{documento}": {
+            "get": {
+                "tags": [
+                    "Propriet\u00e1rios"
+                ],
+                "summary": "Buscar propriet\u00e1rio por CPF/CNPJ",
+                "description": "\u00datil para verificar se o propriet\u00e1rio j\u00e1 est\u00e1 cadastrado antes de abrir uma OS.",
+                "operationId": "buscarPorDocumento",
+                "parameters": [
+                    {
+                        "name": "documento",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Propriet\u00e1rio encontrado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhum propriet\u00e1rio encontrado com o documento informado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProprietarioResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pecas/{pecaId}/estoque": {
+            "get": {
+                "tags": [
+                    "Estoque de Pe\u00e7as"
+                ],
+                "summary": "Consultar estoque da pe\u00e7a",
+                "description": "Retorna quantidade armazenada e dispon\u00edvel (descontando reservas de OS ativas).",
+                "operationId": "buscar",
+                "parameters": [
+                    {
+                        "name": "pecaId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estoque consultado com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pe\u00e7a n\u00e3o encontrada ou estoque ainda n\u00e3o inicializado",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PecaEstoqueResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico/status-service": {
+            "get": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Listar ordens por prioridade de status",
+                "description": "Lista paginada de OS ordenadas por prioridade de status (Em Execu\u00e7\u00e3o > Aguardando Aprova\u00e7\u00e3o > Diagn\u00f3stico > Recebida) e data mais antigua primeiro.",
+                "operationId": "getStatusService",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero da p\u00e1gina (come\u00e7a em 0)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada retornada com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResultOrdemServicoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ordens-servico/metricas/tempo-medio-execucao": {
+            "get": {
+                "tags": [
+                    "Ordens de Servi\u00e7o"
+                ],
+                "summary": "Tempo m\u00e9dio de execu\u00e7\u00e3o por servi\u00e7o [ADMIN]",
+                "description": "**ADMIN** \u2014 Tempo m\u00e9dio (horas) por tipo de servi\u00e7o nas OS finalizadas. Per\u00edodo opcional via `dataInicio` e `dataFim` no formato `dd/MM/yyyy`.",
+                "operationId": "getAverageExecutionTime",
+                "parameters": [
+                    {
+                        "name": "dataInicio",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "dataFim",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "M\u00e9tricas calculadas com sucesso",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TempoMedioExecucaoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Formato de data inv\u00e1lido \u2014 use dd/MM/yyyy",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TempoMedioExecucaoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "VeiculoRequest": {
+                "required": [
+                    "ano",
+                    "cor",
+                    "marca",
+                    "modelo",
+                    "placa",
+                    "proprietarioId"
+                ],
+                "type": "object",
+                "properties": {
+                    "proprietarioId": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "placa": {
+                        "type": "string",
+                        "example": "ABC1D23"
+                    },
+                    "marca": {
+                        "type": "string",
+                        "example": "Fiat"
+                    },
+                    "modelo": {
+                        "type": "string",
+                        "example": "Uno"
+                    },
+                    "ano": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 2020
+                    },
+                    "cor": {
+                        "type": "string",
+                        "example": "Prata"
+                    }
+                },
+                "description": "Dados para cria\u00e7\u00e3o/atualiza\u00e7\u00e3o de ve\u00edculo"
+            },
+            "VeiculoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "proprietarioId": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "placa": {
+                        "type": "string",
+                        "example": "ABC-1D23"
+                    },
+                    "marca": {
+                        "type": "string",
+                        "example": "Fiat"
+                    },
+                    "modelo": {
+                        "type": "string",
+                        "example": "Uno"
+                    },
+                    "ano": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 2020
+                    },
+                    "cor": {
+                        "type": "string",
+                        "example": "Prata"
+                    }
+                },
+                "description": "Dados do ve\u00edculo"
+            },
+            "AtualizarServicoRequest": {
+                "required": [
+                    "descricao",
+                    "nome"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EnderecoRequest": {
+                "required": [
+                    "cep",
+                    "numeroCasa",
+                    "rua"
+                ],
+                "type": "object",
+                "properties": {
+                    "rua": {
+                        "type": "string",
+                        "example": "Rua das Flores"
+                    },
+                    "cep": {
+                        "type": "string",
+                        "example": "01234-567"
+                    },
+                    "numeroCasa": {
+                        "type": "string",
+                        "example": "123"
+                    }
+                },
+                "description": "Dados do endere\u00e7o"
+            },
+            "ProprietarioRequest": {
+                "required": [
+                    "documento",
+                    "email",
+                    "nome",
+                    "numeroCelular"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "example": "Jo\u00e3o da Silva"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "joao@email.com"
+                    },
+                    "documento": {
+                        "type": "string",
+                        "description": "CPF ou CNPJ",
+                        "example": "123.456.789-00"
+                    },
+                    "numeroCelular": {
+                        "type": "string",
+                        "example": "(11) 99999-9999"
+                    },
+                    "endereco": {
+                        "$ref": "#/components/schemas/EnderecoRequest"
+                    }
+                },
+                "description": "Dados para cria\u00e7\u00e3o/atualiza\u00e7\u00e3o de propriet\u00e1rio"
+            },
+            "EnderecoResponse": {
+                "type": "object",
+                "properties": {
+                    "rua": {
+                        "type": "string",
+                        "example": "Rua das Flores"
+                    },
+                    "cep": {
+                        "type": "string",
+                        "example": "01234567"
+                    },
+                    "numeroCasa": {
+                        "type": "string",
+                        "example": "123"
+                    }
+                },
+                "description": "Dados do endere\u00e7o"
+            },
+            "ProprietarioResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Jo\u00e3o da Silva"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "joao@email.com"
+                    },
+                    "documento": {
+                        "type": "string",
+                        "example": "123.456.789-00"
+                    },
+                    "numeroCelular": {
+                        "type": "string",
+                        "example": "(11) 99999-9999"
+                    },
+                    "endereco": {
+                        "$ref": "#/components/schemas/EnderecoResponse"
+                    },
+                    "veiculos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VeiculoResponse"
+                        }
+                    }
+                },
+                "description": "Dados do propriet\u00e1rio"
+            },
+            "AtualizarPecaRequest": {
+                "required": [
+                    "descricao",
+                    "nome",
+                    "valor"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    },
+                    "valor": {
+                        "type": "number"
+                    }
+                }
+            },
+            "PecaResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    },
+                    "valor": {
+                        "type": "number"
+                    },
+                    "ativo": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "AtualizarFuncionarioRequest": {
+                "required": [
+                    "cargoId",
+                    "nome"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "cargoId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "FuncionarioResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID do funcion\u00e1rio",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome completo do funcion\u00e1rio",
+                        "example": "Jo\u00e3o Silva"
+                    },
+                    "cargo": {
+                        "type": "string",
+                        "description": "Cargo do funcion\u00e1rio",
+                        "example": "MECANICO"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "description": "UUID do usu\u00e1rio de acesso vinculado",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    }
+                },
+                "description": "Dados do funcion\u00e1rio"
+            },
+            "CadastrarServicoRequest": {
+                "required": [
+                    "descricao",
+                    "nome"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CadastrarPecaRequest": {
+                "required": [
+                    "descricao",
+                    "nome",
+                    "valor"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "descricao": {
+                        "type": "string"
+                    },
+                    "valor": {
+                        "type": "number"
+                    }
+                }
+            },
+            "MovimentarPecaEstoqueRequest": {
+                "required": [
+                    "quantidade"
+                ],
+                "type": "object",
+                "properties": {
+                    "quantidade": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PecaEstoqueResponse": {
+                "type": "object",
+                "properties": {
+                    "pecaId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "quantidadeArmazenada": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "quantidadeDisponivel": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "OrdemServicoRequest": {
+                "required": [
+                    "proprietarioId",
+                    "veiculoId"
+                ],
+                "type": "object",
+                "properties": {
+                    "veiculoId": {
+                        "type": "integer",
+                        "description": "Id do ve\u00edculo",
+                        "format": "int64",
+                        "example": 4
+                    },
+                    "proprietarioId": {
+                        "type": "integer",
+                        "description": "Id do propriet\u00e1rio",
+                        "format": "int64",
+                        "example": 3
+                    },
+                    "reclamacaoProprietario": {
+                        "maxLength": 500,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Observa\u00e7\u00f5es da ordem de servi\u00e7o",
+                        "example": "Propriet\u00e1rio relatou barulho ao frear"
+                    }
+                },
+                "description": "Dados para cria\u00e7\u00e3o da Ordem de Servi\u00e7o"
+            },
+            "ExecucaoServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID da execu\u00e7\u00e3o de servi\u00e7o",
+                        "format": "int64",
+                        "example": 189
+                    },
+                    "servicoId": {
+                        "type": "integer",
+                        "description": "ID do servi\u00e7o cadastrado",
+                        "format": "int64",
+                        "example": 134
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status atual do servi\u00e7o",
+                        "example": "APROVADO",
+                        "enum": [
+                            "PENDENTE",
+                            "APROVADO",
+                            "RECUSADO",
+                            "EM_EXECUCAO",
+                            "AGUARDANDO_PECA",
+                            "FINALIZADO"
+                        ]
+                    },
+                    "mecanico": {
+                        "$ref": "#/components/schemas/FuncionarioResumoResponse"
+                    },
+                    "valorMaoDeObra": {
+                        "type": "number",
+                        "description": "Valor da m\u00e3o de obra",
+                        "example": 150.0
+                    },
+                    "iniciadoEm": {
+                        "type": "string",
+                        "description": "Data de in\u00edcio da execu\u00e7\u00e3o",
+                        "format": "date-time"
+                    },
+                    "terminadoEm": {
+                        "type": "string",
+                        "description": "Data de conclus\u00e3o da execu\u00e7\u00e3o",
+                        "format": "date-time"
+                    },
+                    "atualizadoEm": {
+                        "type": "string",
+                        "description": "Data da \u00faltima atualiza\u00e7\u00e3o",
+                        "format": "date-time"
+                    },
+                    "pecas": {
+                        "type": "array",
+                        "description": "Pe\u00e7as alocadas para este servi\u00e7o",
+                        "items": {
+                            "$ref": "#/components/schemas/PecaServicoResponse"
+                        }
+                    }
+                },
+                "description": "Servi\u00e7o vinculado a uma ordem de servi\u00e7o"
+            },
+            "FuncionarioResumoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Id do funcion\u00e1rio",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do funcion\u00e1rio",
+                        "example": "Jo\u00e3o Silva"
+                    }
+                },
+                "description": "Mec\u00e2nico respons\u00e1vel pelo servi\u00e7o"
+            },
+            "OrdemServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Id da ordem de servi\u00e7o",
+                        "format": "int64",
+                        "example": 100
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status da ordem",
+                        "example": "EM_DIAGNOSTICO"
+                    },
+                    "reclamacaoProprietario": {
+                        "type": "string",
+                        "description": "Reclama\u00e7\u00e3o do propriet\u00e1rio",
+                        "example": "Barulho ao frear"
+                    },
+                    "atendente": {
+                        "$ref": "#/components/schemas/FuncionarioResumoResponse"
+                    },
+                    "mecanico": {
+                        "$ref": "#/components/schemas/FuncionarioResumoResponse"
+                    },
+                    "proprietario": {
+                        "$ref": "#/components/schemas/ProprietarioResumoResponse"
+                    },
+                    "veiculo": {
+                        "$ref": "#/components/schemas/VeiculoResumoResponse"
+                    },
+                    "iniciadoEm": {
+                        "type": "string",
+                        "description": "Data de in\u00edcio",
+                        "format": "date-time"
+                    },
+                    "finalizadoEm": {
+                        "type": "string",
+                        "description": "Data de finaliza\u00e7\u00e3o",
+                        "format": "date-time"
+                    },
+                    "entregueEm": {
+                        "type": "string",
+                        "description": "Data de entrega",
+                        "format": "date-time"
+                    },
+                    "atualizadoEm": {
+                        "type": "string",
+                        "description": "Data da \u00faltima atualiza\u00e7\u00e3o",
+                        "format": "date-time"
+                    },
+                    "servicos": {
+                        "type": "array",
+                        "description": "Lista de servi\u00e7os da OS",
+                        "items": {
+                            "$ref": "#/components/schemas/ExecucaoServicoResponse"
+                        }
+                    },
+                    "totais": {
+                        "$ref": "#/components/schemas/TotaisOrdemServicoResponse"
+                    }
+                },
+                "description": "Resposta da Ordem de Servi\u00e7o"
+            },
+            "PecaServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "alocacaoId": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Pastilha de freio"
+                    },
+                    "valor": {
+                        "type": "number",
+                        "example": 49.9
+                    },
+                    "quantidadeSolicitada": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 4
+                    },
+                    "quantidadeReservada": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 2
+                    },
+                    "quantidadeEncomendada": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 2
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "PARCIAL"
+                    },
+                    "atualizado": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "description": "Pe\u00e7as alocadas para este servi\u00e7o"
+            },
+            "ProprietarioResumoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Id do propriet\u00e1rio",
+                        "format": "int64",
+                        "example": 4
+                    },
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do propriet\u00e1rio",
+                        "example": "Jo\u00e3o Santos"
+                    }
+                },
+                "description": "Propriet\u00e1rio do ve\u00edculo"
+            },
+            "TotaisOrdemServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "maoDeObraAprovada": {
+                        "type": "number",
+                        "description": "Total da m\u00e3o de obra dos servi\u00e7os aprovados",
+                        "example": 300.0
+                    },
+                    "pecasAprovadas": {
+                        "type": "number",
+                        "description": "Total das pe\u00e7as dos servi\u00e7os aprovados",
+                        "example": 80.0
+                    },
+                    "totalAprovado": {
+                        "type": "number",
+                        "description": "Total aprovado (m\u00e3o de obra + pe\u00e7as)",
+                        "example": 380.0
+                    },
+                    "totalRecusado": {
+                        "type": "number",
+                        "description": "Total da m\u00e3o de obra dos servi\u00e7os recusados",
+                        "example": 150.0
+                    }
+                },
+                "description": "Totais financeiros da OS"
+            },
+            "VeiculoResumoResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Id do ve\u00edculo",
+                        "format": "int64",
+                        "example": 7
+                    },
+                    "descricao": {
+                        "type": "string",
+                        "description": "Descri\u00e7\u00e3o do ve\u00edculo",
+                        "example": "Fiat Uno 2020"
+                    }
+                },
+                "description": "Ve\u00edculo da ordem de servi\u00e7o"
+            },
+            "ReceberAprovacaoOrcamentoRequest": {
+                "required": [
+                    "servicos"
+                ],
+                "type": "object",
+                "properties": {
+                    "servicos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ServicoAprovacao"
+                        }
+                    }
+                }
+            },
+            "ServicoAprovacao": {
+                "required": [
+                    "execucaoServicoId",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "execucaoServicoId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDENTE",
+                            "APROVADO",
+                            "RECUSADO",
+                            "EM_EXECUCAO",
+                            "AGUARDANDO_PECA",
+                            "FINALIZADO"
+                        ]
+                    }
+                }
+            },
+            "ViewModel": {
+                "type": "object",
+                "properties": {
+                    "idOs": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OrdemServicoCompletaRequest": {
+                "required": [
+                    "proprietario",
+                    "veiculo"
+                ],
+                "type": "object",
+                "properties": {
+                    "proprietario": {
+                        "$ref": "#/components/schemas/ProprietarioRequest"
+                    },
+                    "veiculo": {
+                        "$ref": "#/components/schemas/VeiculoSemProprietarioRequest"
+                    },
+                    "reclamacaoProprietario": {
+                        "maxLength": 500,
+                        "minLength": 0,
+                        "type": "string",
+                        "description": "Observa\u00e7\u00f5es da ordem de servi\u00e7o",
+                        "example": "Propriet\u00e1rio relatou barulho ao frear"
+                    },
+                    "servicos": {
+                        "type": "array",
+                        "description": "Servi\u00e7os (referenciados por Id) a adicionar \u00e0 ordem de servi\u00e7o j\u00e1 na cria\u00e7\u00e3o",
+                        "items": {
+                            "$ref": "#/components/schemas/ServicoRequest"
+                        }
+                    }
+                },
+                "description": "Dados para cria\u00e7\u00e3o de uma Ordem de Servi\u00e7o j\u00e1 com o cadastro do propriet\u00e1rio, do ve\u00edculo e, opcionalmente, dos servi\u00e7os/pe\u00e7as"
+            },
+            "PecaNecessariaRequest": {
+                "required": [
+                    "pecaId",
+                    "quantidade"
+                ],
+                "type": "object",
+                "properties": {
+                    "pecaId": {
+                        "type": "integer",
+                        "description": "id da pe\u00e7a",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "quantidade": {
+                        "type": "integer",
+                        "description": "quantidade de pe\u00e7as necess\u00e1rias",
+                        "format": "int32",
+                        "example": 1
+                    }
+                },
+                "description": "Pe\u00e7as necess\u00e1rias para o servi\u00e7o"
+            },
+            "ServicoRequest": {
+                "required": [
+                    "servicoId",
+                    "valorMaoDeObra"
+                ],
+                "type": "object",
+                "properties": {
+                    "servicoId": {
+                        "type": "integer",
+                        "description": "ID do servi\u00e7o a executar",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "pecas": {
+                        "type": "array",
+                        "description": "Pe\u00e7as necess\u00e1rias para o servi\u00e7o",
+                        "items": {
+                            "$ref": "#/components/schemas/PecaNecessariaRequest"
+                        }
+                    },
+                    "valorMaoDeObra": {
+                        "type": "number",
+                        "description": "Valor cobrado pela m\u00e3o de obra",
+                        "example": 150.0
+                    }
+                },
+                "description": "Servi\u00e7os (referenciados por Id) a adicionar \u00e0 ordem de servi\u00e7o j\u00e1 na cria\u00e7\u00e3o"
+            },
+            "VeiculoSemProprietarioRequest": {
+                "required": [
+                    "ano",
+                    "cor",
+                    "marca",
+                    "modelo",
+                    "placa"
+                ],
+                "type": "object",
+                "properties": {
+                    "placa": {
+                        "type": "string",
+                        "example": "ABC1D23"
+                    },
+                    "marca": {
+                        "type": "string",
+                        "example": "Fiat"
+                    },
+                    "modelo": {
+                        "type": "string",
+                        "example": "Uno"
+                    },
+                    "ano": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 2020
+                    },
+                    "cor": {
+                        "type": "string",
+                        "example": "Prata"
+                    }
+                },
+                "description": "Dados do ve\u00edculo, sem o propriet\u00e1rio (preenchido a partir do propriet\u00e1rio criado na mesma requisi\u00e7\u00e3o)"
+            },
+            "CadastrarFuncionarioRequest": {
+                "required": [
+                    "cargoId",
+                    "nome",
+                    "senha",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "senha": {
+                        "type": "string"
+                    },
+                    "cargoId": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "LoginResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "expiresIn": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "AjustarPecaEstoqueRequest": {
+                "required": [
+                    "quantidadeArmazenada",
+                    "quantidadeDisponivel"
+                ],
+                "type": "object",
+                "properties": {
+                    "quantidadeArmazenada": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "quantidadeDisponivel": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "AprovarOrdemServicoRequest": {
+                "required": [
+                    "servicos"
+                ],
+                "type": "object",
+                "properties": {
+                    "servicos": {
+                        "type": "array",
+                        "description": "Servi\u00e7os a aprovar ou reprovar",
+                        "items": {
+                            "$ref": "#/components/schemas/Servico"
+                        }
+                    }
+                },
+                "description": "Dados para aprova\u00e7\u00e3o da Ordem de Servi\u00e7o"
+            },
+            "Servico": {
+                "required": [
+                    "execucaoServicoId",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "execucaoServicoId": {
+                        "type": "integer",
+                        "description": "Id da execu\u00e7\u00e3o de servi\u00e7o",
+                        "format": "int64",
+                        "example": 10
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Novo status: APROVADO ou RECUSADO",
+                        "example": "APROVADO"
+                    }
+                },
+                "description": "Servi\u00e7os a aprovar ou reprovar"
+            },
+            "AprovarOrdemServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "idOs": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "servicos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Servico"
+                        }
+                    },
+                    "totais": {
+                        "$ref": "#/components/schemas/TotaisOrdemServicoResponse"
+                    }
+                }
+            },
+            "AddServicoRequest": {
+                "required": [
+                    "servicoRequests"
+                ],
+                "type": "object",
+                "properties": {
+                    "servicoRequests": {
+                        "type": "array",
+                        "description": "Lista de servi\u00e7os a adicionar",
+                        "items": {
+                            "$ref": "#/components/schemas/ServicoRequest"
+                        }
+                    }
+                },
+                "description": "Dados para adi\u00e7\u00e3o de servi\u00e7os a uma ordem de servi\u00e7o"
+            },
+            "PaginatedResultVeiculoResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VeiculoResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PaginatedResultServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ServicoResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PaginatedResultProprietarioResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProprietarioResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PaginatedResultPecaResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PecaResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PaginatedResultOrdemServicoResponse": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrdemServicoResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "TempoMedioExecucaoResponse": {
+                "required": [
+                    "servicos"
+                ],
+                "type": "object",
+                "properties": {
+                    "servicos": {
+                        "type": "array",
+                        "description": "Lista de servi\u00e7os com o tempo m\u00e9dio de execu\u00e7\u00e3o",
+                        "items": {
+                            "$ref": "#/components/schemas/TempoMedioExecucaoServicoItemResponse"
+                        }
+                    },
+                    "dataInicio": {
+                        "type": "string",
+                        "description": "Data inicial considerada na consulta",
+                        "format": "date"
+                    },
+                    "dataFim": {
+                        "type": "string",
+                        "description": "Data final considerada na consulta",
+                        "format": "date"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "description": "Timezone utilizada para c\u00e1lculo da janela de datas",
+                        "example": "America/Sao_Paulo"
+                    }
+                },
+                "description": "Resposta da m\u00e9trica de tempo m\u00e9dio de execu\u00e7\u00e3o por servi\u00e7o"
+            },
+            "TempoMedioExecucaoServicoItemResponse": {
+                "type": "object",
+                "properties": {
+                    "servicoId": {
+                        "type": "integer",
+                        "description": "Id do servi\u00e7o",
+                        "format": "int64",
+                        "example": 5
+                    },
+                    "servicoNome": {
+                        "type": "string",
+                        "description": "Nome do servi\u00e7o",
+                        "example": "Troca freio"
+                    },
+                    "tempoMedioMinutos": {
+                        "type": "number",
+                        "description": "Tempo m\u00e9dio de execu\u00e7\u00e3o em minutos",
+                        "example": 37.25
+                    }
+                },
+                "description": "Item da m\u00e9trica de tempo m\u00e9dio de execu\u00e7\u00e3o por servi\u00e7o"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Token JWT obtido via POST /auth/login",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}

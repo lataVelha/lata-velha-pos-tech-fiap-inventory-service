@@ -1,0 +1,145 @@
+spring:
+  application:
+    name: lata-velha-inventory-api
+  profiles:
+    active: ${ENVIRONMENT:dev}
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lata_velha_inventory}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:admin123}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    locations: classpath:db/migration,classpath:db/migration-postgresql
+
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    default-encoding: UTF-8
+
+# O API Gateway fala https com o cliente mas http com o ALB interno (VPC
+# Link + HTTP_PROXY) — sem isso, o Spring so enxerga a conexao http vinda do
+# ALB e gera URLs http:// (Swagger "Try it out" quebra com erro de CORS/
+# "Failed to fetch", porque o dominio execute-api.amazonaws.com so serve
+# https). O API Gateway ja envia X-Forwarded-Proto: https; isso so faz o
+# Spring confiar nesse header pra montar as URLs certas.
+server:
+  forward-headers-strategy: framework
+
+jwt:
+  public:
+    key: classpath:app.pub
+  issuer: ${JWT_ISSUER:lata-velha}
+
+# TODO: lookup real de admins deve vir de uma chamada ao OsService (ou um read-model
+# sincronizado por evento) — ver NotificarAdminGatewayImpl.
+notificacoes:
+  admin-emails: ${NOTIFICACOES_ADMIN_EMAILS:admin@latavelha.com}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    # Email e best-effort (SPRING_MAIL_USERNAME/PASSWORD podem vir vazios —
+    # ver application.yaml acima). Sem isso, o startupProbe (que bate em
+    # /actuator/health, o agregado) nunca fica saudavel quando o mail nao
+    # esta configurado, e o pod entra em CrashLoopBackOff.
+    mail:
+      enabled: false
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+thymeleaf:
+  prefix: classpath:/templates/
+  suffix: .html
+  mode: HTML
+  encoding: UTF-8
+
+otel:
+  service:
+    name: ${OTEL_SERVICE_NAME:${spring.application.name}}
+  resource:
+    attributes:
+      service.name: ${OTEL_SERVICE_NAME:${spring.application.name}}
+      deployment.environment: ${DEPLOYMENT_ENVIRONMENT_NAME:local}
+      deployment.environment.name: ${DEPLOYMENT_ENVIRONMENT_NAME:local}
+      service.version: ${SERVICE_VERSION:0.0.1}
+      service.instance.id: ${HOSTNAME:unknown}
+      host.name: ${HOSTNAME:unknown}
+  exporter:
+    otlp:
+      enabled: ${OTEL_EXPORTER_OTLP_ENABLED:true}
+      protocol: ${OTEL_EXPORTER_OTLP_PROTOCOL:http/protobuf}
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:https://otlp.us5.datadoghq.com}
+      timeout: ${OTEL_EXPORTER_OTLP_TIMEOUT:30000}
+      retry:
+        enabled: true
+        max-attempts: ${OTEL_EXPORTER_RETRY_MAX_ATTEMPTS:5}
+        initial-backoff: ${OTEL_EXPORTER_RETRY_INITIAL_BACKOFF:1000ms}
+        max-backoff: ${OTEL_EXPORTER_RETRY_MAX_BACKOFF:10000ms}
+        backoff-multiplier: ${OTEL_EXPORTER_RETRY_BACKOFF_MULTIPLIER:2.0}
+      traces:
+        endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:https://otlp.us5.datadoghq.com/v1/traces}
+      metrics:
+        endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:https://otlp.us5.datadoghq.com/v1/metrics}
+        temporality-preference: ${OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE:delta}
+      logs:
+        endpoint: ${OTEL_EXPORTER_OTLP_LOGS_ENDPOINT:https://otlp.us5.datadoghq.com/v1/logs}
+      headers:
+        dd-api-key: ${DD_API_KEY:}
+  instrumentation:
+    common-endpoint:
+      capture-request-headers: true
+      capture-response-headers: true
+    logback-appender:
+      enabled: true
+      experimental:
+        capture-mdc-attributes: '*'
+    spring-webmvc:
+      enabled: true
+      experimental:
+        capture-request-parameters: true
+    spring-webflux:
+      enabled: true
+    spring-data:
+      enabled: true
+    jdbc:
+      enabled: true
+    log4j-appender:
+      enabled: false
+    java-util-logging:
+      enabled: false
