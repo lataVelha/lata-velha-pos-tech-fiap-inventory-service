@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: lata-velha-inventory-api
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/lata_velha_inventory
+    username: admin
+    password: admin123
+
+logging:
+  level:
+    br.com.lata.velha.shared.infrastructure.observability: DEBUG
+    io.opentelemetry: DEBUG

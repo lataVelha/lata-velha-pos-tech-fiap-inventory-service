@@ -1,0 +1,332 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 980" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8.5" markerHeight="8.5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#263238"/>
+    </marker>
+    <marker id="arrow-d" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#78838f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #232f3e; }
+      .sub   { font-size: 13px; fill: #5f6b7a; }
+      .lbl   { font-size: 13px; font-weight: 600; fill: #232f3e; }
+      .small { font-size: 11px; fill: #5f6b7a; }
+      .wht   { fill: #fff; font-weight: 600; font-size: 12px; }
+      .edge  { stroke: #263238; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .edge-d{ stroke: #78838f; stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; stroke-linecap: round; stroke-linejoin: round; }
+      .zone  { fill: none; stroke-width: 1.5; }
+    </style>
+
+    <!-- EC2 -->
+    <symbol id="i-ec2" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#FF9900"/>
+      <rect x="14" y="14" width="20" height="20" rx="2" fill="none" stroke="white" stroke-width="2.4"/>
+      <rect x="19" y="19" width="10" height="10" rx="1" fill="white"/>
+      <line x1="19" y1="14" x2="19" y2="9"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="24" y1="14" x2="24" y2="9"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="29" y1="14" x2="29" y2="9"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="19" y1="34" x2="19" y2="39" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="24" y1="34" x2="24" y2="39" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="29" y1="34" x2="29" y2="39" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="14" y1="19" x2="9"  y2="19" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="14" y1="24" x2="9"  y2="24" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="14" y1="29" x2="9"  y2="29" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="34" y1="19" x2="39" y2="19" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="34" y1="24" x2="39" y2="24" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="34" y1="29" x2="39" y2="29" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- EKS -->
+    <symbol id="i-eks" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#FF6A00"/>
+      <circle cx="24" cy="24" r="12.5" fill="none" stroke="white" stroke-width="2.4"/>
+      <circle cx="24" cy="24" r="3.5" fill="white"/>
+      <line x1="24"   y1="11.5" x2="24"   y2="20.5" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="24"   y1="27.5" x2="24"   y2="36.5" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="34.3" y1="17.5" x2="28.2" y2="21"   stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="19.8" y1="27"   x2="13.7" y2="30.5" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="34.3" y1="30.5" x2="28.2" y2="27"   stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="19.8" y1="21"   x2="13.7" y2="17.5" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- RDS -->
+    <symbol id="i-rds" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#3B48CC"/>
+      <ellipse cx="24" cy="15" rx="11" ry="4" fill="none" stroke="white" stroke-width="2.2"/>
+      <line x1="13" y1="15" x2="13" y2="33" stroke="white" stroke-width="2.2"/>
+      <line x1="35" y1="15" x2="35" y2="33" stroke="white" stroke-width="2.2"/>
+      <ellipse cx="24" cy="33" rx="11" ry="4" fill="none" stroke="white" stroke-width="2.2"/>
+      <ellipse cx="24" cy="24" rx="11" ry="4" fill="none" stroke="white" stroke-width="1.3" stroke-dasharray="3 2"/>
+    </symbol>
+
+    <!-- S3 -->
+    <symbol id="i-s3" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#3F9142"/>
+      <path d="M14 19 L34 19 L31 38 L17 38 Z" fill="none" stroke="white" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M11 19 L37 19" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M19 14 Q24 11 29 14" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- ECR -->
+    <symbol id="i-ecr" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#FF9900"/>
+      <rect x="11" y="12" width="26" height="22" rx="2" fill="none" stroke="white" stroke-width="2.2"/>
+      <line x1="11" y1="21" x2="37" y2="21" stroke="white" stroke-width="1.5"/>
+      <line x1="24" y1="12" x2="24" y2="34" stroke="white" stroke-width="1.5"/>
+      <rect x="15" y="36" width="18" height="7" rx="2" fill="white"/>
+      <text x="24" y="42" text-anchor="middle" font-size="5.5" fill="#FF9900" font-weight="bold" font-family="Arial">ECR</text>
+    </symbol>
+
+    <!-- ALB -->
+    <symbol id="i-alb" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#8C4FFF"/>
+      <rect x="19" y="9"  width="10" height="8" rx="2" fill="white"/>
+      <rect x="6"  y="31" width="10" height="8" rx="2" fill="white"/>
+      <rect x="19" y="31" width="10" height="8" rx="2" fill="white"/>
+      <rect x="32" y="31" width="10" height="8" rx="2" fill="white"/>
+      <line x1="24" y1="17" x2="24" y2="25" stroke="white" stroke-width="1.8"/>
+      <line x1="24" y1="25" x2="11" y2="31" stroke="white" stroke-width="1.8"/>
+      <line x1="24" y1="25" x2="24" y2="31" stroke="white" stroke-width="1.8"/>
+      <line x1="24" y1="25" x2="37" y2="31" stroke="white" stroke-width="1.8"/>
+    </symbol>
+
+    <!-- NAT -->
+    <symbol id="i-nat" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#8C4FFF"/>
+      <line x1="12" y1="19" x2="36" y2="19" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="29,13 36,19 29,25" fill="none" stroke="white" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      <line x1="36" y1="29" x2="12" y2="29" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <polyline points="19,23 12,29 19,35" fill="none" stroke="white" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- IGW -->
+    <symbol id="i-igw" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#8C4FFF"/>
+      <circle cx="24" cy="24" r="13" fill="none" stroke="white" stroke-width="2.2"/>
+      <ellipse cx="24" cy="24" rx="6" ry="13" fill="none" stroke="white" stroke-width="1.6"/>
+      <line x1="11" y1="24" x2="37" y2="24" stroke="white" stroke-width="1.6"/>
+      <path d="M12.5 18 Q24 21 35.5 18" fill="none" stroke="white" stroke-width="1.3"/>
+      <path d="M12.5 30 Q24 27 35.5 30" fill="none" stroke="white" stroke-width="1.3"/>
+    </symbol>
+
+    <!-- GitHub -->
+    <symbol id="i-gh" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#24292E"/>
+      <path d="M24 10C16.3 10 10 16.3 10 24c0 6.2 4 11.4 9.6 13.2.7.1 1-.3 1-.6v-2.2c-3.7.8-4.5-1.8-4.5-1.8-.6-1.5-1.5-1.9-1.5-1.9-1.2-.8.1-.8.1-.8 1.3.1 2 1.3 2 1.3 1.2 2 3.1 1.4 3.9 1.1.1-.9.5-1.5.9-1.8-3-.3-6.2-1.5-6.2-6.9 0-1.4.5-2.6 1.4-3.5-.1-.3-.6-1.7.1-3.5 0 0 1.1-.3 3.8 1.4 1.2-.3 2.5-.5 3.8-.5s2.6.2 3.8.5c2.7-1.7 3.8-1.4 3.8-1.4.7 1.8.2 3.2.1 3.5.9.9 1.4 2.1 1.4 3.5 0 5.4-3.2 6.6-6.2 6.9.5.4 1 1.3 1 2.7v4c0 .3.3.7 1 .6C34 35.4 38 30.2 38 24c0-7.7-6.3-14-14-14z" fill="white"/>
+    </symbol>
+
+    <!-- Internet globe -->
+    <symbol id="i-internet" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#546E7A"/>
+      <circle cx="24" cy="24" r="13" fill="none" stroke="white" stroke-width="2.2"/>
+      <ellipse cx="24" cy="24" rx="6" ry="13" fill="none" stroke="white" stroke-width="1.6"/>
+      <line x1="11" y1="24" x2="37" y2="24" stroke="white" stroke-width="1.6"/>
+      <path d="M12.5 18 Q24 21 35.5 18" fill="none" stroke="white" stroke-width="1.3"/>
+      <path d="M12.5 30 Q24 27 35.5 30" fill="none" stroke="white" stroke-width="1.3"/>
+    </symbol>
+
+    <!-- API Gateway -->
+    <symbol id="i-apigw" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#E7157B"/>
+      <line x1="16" y1="10" x2="16" y2="38" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="32" y1="10" x2="32" y2="38" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="10" y1="24" x2="38" y2="24" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+      <polyline points="30,16 39,24 30,32" fill="none" stroke="white" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Lambda -->
+    <symbol id="i-lambda" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="7" fill="#ED7100"/>
+      <text x="24" y="34" text-anchor="middle" font-size="25" font-weight="700" fill="white" font-family="Georgia, 'Times New Roman', serif">&#955;</text>
+    </symbol>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="1500" height="980" fill="#f0f2f5"/>
+
+  <!-- ── Título ── -->
+  <text x="50" y="46" class="title">Lata Velha — Arquitetura AWS</text>
+  <text x="50" y="66" class="sub">Terraform (AWS Academy / LabRole) · us-east-1 · 4 repos, cada um com seu state</text>
+
+  <!-- ════════════════════════════════════
+       FORA DA VPC — Internet + API Gateway + Lambdas + CI/CD + ECR + S3
+       ════════════════════════════════════ -->
+
+  <!-- Internet -->
+  <rect x="50" y="88" width="160" height="72" rx="12" fill="#fff" stroke="#cfd8dc" stroke-width="1.5"/>
+  <use href="#i-internet" x="62" y="98" width="32" height="32"/>
+  <text x="130" y="114" text-anchor="middle" class="lbl">Internet</text>
+  <text x="130" y="132" text-anchor="middle" class="small">clientes HTTP</text>
+
+  <!-- API Gateway — ponto de entrada único -->
+  <rect x="560" y="88" width="380" height="72" rx="12" fill="#fce4ec" stroke="#E7157B" stroke-width="2"/>
+  <use href="#i-apigw" x="574" y="98" width="32" height="32"/>
+  <text x="750" y="112" text-anchor="middle" class="lbl" fill="#AD1457">Amazon API Gateway (HTTP API)</text>
+  <text x="750" y="130" text-anchor="middle" class="small">único ponto de entrada · repo infra (addons)</text>
+  <text x="750" y="146" text-anchor="middle" class="small">rotas anexadas pelos repos lambda + app</text>
+
+  <!-- GitHub Actions -->
+  <rect x="1170" y="88" width="280" height="72" rx="12" fill="#fff" stroke="#cfd8dc" stroke-width="1.5"/>
+  <use href="#i-gh" x="1184" y="98" width="32" height="32"/>
+  <text x="1310" y="114" text-anchor="middle" class="lbl">GitHub Actions (CI/CD)</text>
+  <text x="1310" y="132" text-anchor="middle" class="small">4 repos · workflow_dispatch/push</text>
+
+  <!-- Lambda jwt-authorizer (sem VPC) -->
+  <rect x="560" y="182" width="180" height="80" rx="12" fill="#fff3e0" stroke="#ED7100" stroke-width="1.5"/>
+  <use href="#i-lambda" x="572" y="192" width="30" height="30"/>
+  <text x="650" y="212" text-anchor="middle" class="lbl">jwt-authorizer</text>
+  <text x="650" y="230" text-anchor="middle" class="small">repo lambda · sem VPC</text>
+  <text x="650" y="246" text-anchor="middle" class="small">valida assinatura/issuer</text>
+
+  <!-- Lambda auth-cpf (com VPC) -->
+  <rect x="760" y="182" width="180" height="80" rx="12" fill="#fff3e0" stroke="#ED7100" stroke-width="1.5"/>
+  <use href="#i-lambda" x="772" y="192" width="30" height="30"/>
+  <text x="850" y="212" text-anchor="middle" class="lbl">auth-cpf</text>
+  <text x="850" y="230" text-anchor="middle" class="small">repo lambda · ENI na VPC</text>
+  <text x="850" y="246" text-anchor="middle" class="small">POST /auth/cpf → login por CPF</text>
+
+  <!-- ECR -->
+  <rect x="1170" y="182" width="280" height="70" rx="12" fill="#fff3e0" stroke="#FB8C00" stroke-width="1.5"/>
+  <use href="#i-ecr" x="1184" y="194" width="32" height="32"/>
+  <text x="1310" y="210" text-anchor="middle" class="lbl">Amazon ECR</text>
+  <text x="1310" y="230" text-anchor="middle" class="small">imagem Docker · tag = SHA · repo app</text>
+
+  <!-- S3 -->
+  <rect x="1170" y="272" width="280" height="70" rx="12" fill="#e8f5e9" stroke="#43a047" stroke-width="1.5"/>
+  <use href="#i-s3" x="1184" y="284" width="32" height="32"/>
+  <text x="1310" y="300" text-anchor="middle" class="lbl">Amazon S3</text>
+  <text x="1310" y="320" text-anchor="middle" class="small">tfstate dos 4 repos · lock nativo</text>
+
+  <!-- ════════════════════════════════════
+       VPC
+       ════════════════════════════════════ -->
+  <rect x="50" y="386" width="1000" height="574" rx="16" class="zone" stroke="#0277BD" stroke-width="2"/>
+  <text x="74" y="412" class="lbl" fill="#0277BD">VPC  10.0.0.0/16  (repo infra · bootstrap)</text>
+
+  <!-- IGW (só serve o NAT agora — ALB não é mais público) -->
+  <rect x="420" y="398" width="220" height="48" rx="10" fill="#e1f5fe" stroke="#0277BD" stroke-width="1.5"/>
+  <use href="#i-igw" x="432" y="404" width="28" height="28"/>
+  <text x="580" y="426" text-anchor="middle" class="lbl">Internet Gateway</text>
+
+  <!-- ── Subnets públicas ── -->
+  <rect x="74" y="460" width="952" height="104" rx="12" class="zone" stroke="#7E57C2" stroke-width="1.5" fill="#f3e9fc"/>
+  <text x="92" y="482" class="lbl" fill="#7E57C2">Subnets públicas  (AZ-a · AZ-b)</text>
+
+  <!-- NAT Gateway -->
+  <rect x="96" y="494" width="240" height="58" rx="12" fill="#ede7f6" stroke="#7E57C2" stroke-width="1.5"/>
+  <use href="#i-nat" x="108" y="500" width="28" height="28"/>
+  <text x="230" y="512" text-anchor="middle" class="lbl">NAT Gateway</text>
+  <text x="230" y="530" text-anchor="middle" class="small">egress das subnets privadas</text>
+  <text x="230" y="544" text-anchor="middle" class="small">única rota compartilhada</text>
+
+  <!-- ── Subnets privadas ── -->
+  <rect x="74" y="586" width="952" height="352" rx="12" class="zone" stroke="#00897B" stroke-width="1.5" fill="#e0f2f1"/>
+  <text x="92" y="608" class="lbl" fill="#00897B">Subnets privadas  (AZ-a · AZ-b)</text>
+
+  <!-- ALB (agora interno) -->
+  <rect x="96" y="622" width="340" height="88" rx="12" fill="#ede7f6" stroke="#7E57C2" stroke-width="1.5"/>
+  <use href="#i-alb" x="110" y="634" width="32" height="32"/>
+  <text x="266" y="642" text-anchor="middle" class="lbl">Application Load Balancer</text>
+  <text x="266" y="660" text-anchor="middle" class="small">interno · sem IP público</text>
+  <text x="266" y="676" text-anchor="middle" class="small">SG: só aceita o VPC Link</text>
+  <text x="266" y="692" text-anchor="middle" class="small">HTTP :80 → NodePort :30080</text>
+
+  <!-- EKS Cluster -->
+  <rect x="96" y="726" width="650" height="196" rx="12" fill="#fff8e1" stroke="#FB8C00" stroke-width="1.5"/>
+  <use href="#i-eks" x="110" y="732" width="28" height="28"/>
+  <text x="330" y="748" text-anchor="middle" class="lbl" fill="#E65100">Amazon EKS · Kubernetes</text>
+
+  <!-- Node A -->
+  <rect x="116" y="762" width="272" height="140" rx="10" fill="#fff" stroke="#FB8C00" stroke-width="1.5"/>
+  <use href="#i-ec2" x="126" y="770" width="22" height="22"/>
+  <text x="252" y="784" text-anchor="middle" class="lbl">EC2 t3.small · AZ-a</text>
+  <rect x="148" y="796" width="208" height="44" rx="8" fill="#FF9900"/>
+  <text x="252" y="815" text-anchor="middle" class="wht">api pod  :8080</text>
+  <text x="252" y="830" text-anchor="middle" font-size="10" fill="white" opacity="0.85">anti-affinity</text>
+  <text x="252" y="872" text-anchor="middle" class="small">HPA: 2 → 6 réplicas</text>
+
+  <!-- Node B -->
+  <rect x="458" y="762" width="272" height="140" rx="10" fill="#fff" stroke="#FB8C00" stroke-width="1.5"/>
+  <use href="#i-ec2" x="468" y="770" width="22" height="22"/>
+  <text x="594" y="784" text-anchor="middle" class="lbl">EC2 t3.small · AZ-b</text>
+  <rect x="490" y="796" width="208" height="44" rx="8" fill="#FF9900"/>
+  <text x="594" y="815" text-anchor="middle" class="wht">api pod  :8080</text>
+  <text x="594" y="830" text-anchor="middle" font-size="10" fill="white" opacity="0.85">PDB maxUnavailable 1</text>
+  <text x="594" y="872" text-anchor="middle" class="small">Cluster Autoscaler: 1 → 4 nodes</text>
+
+  <!-- RDS -->
+  <rect x="774" y="622" width="232" height="300" rx="12" fill="#e3f2fd" stroke="#1565C0" stroke-width="1.5"/>
+  <use href="#i-rds" x="788" y="634" width="32" height="32"/>
+  <text x="890" y="652" text-anchor="middle" class="lbl" fill="#1565C0">Amazon RDS</text>
+  <text x="890" y="682" text-anchor="middle" class="small">PostgreSQL 15 · db.t3.micro</text>
+  <text x="890" y="702" text-anchor="middle" class="small">repo infra-db</text>
+  <text x="890" y="722" text-anchor="middle" class="small">Single-AZ · subnet privada</text>
+  <text x="890" y="742" text-anchor="middle" class="small">SG: :5432 só da VPC</text>
+  <text x="890" y="762" text-anchor="middle" class="small">sem acesso público</text>
+
+  <!-- ════════════════════════════════════
+       CONEXÕES
+       ════════════════════════════════════ -->
+
+  <!-- Internet → API Gateway -->
+  <path class="edge" d="M210 122 L558 122" marker-end="url(#arrow)"/>
+
+  <!-- API Gateway → jwt-authorizer (authorizer, dashed) -->
+  <path class="edge-d" d="M660 160 L660 180" marker-end="url(#arrow-d)"/>
+  <text x="656" y="174" text-anchor="end" class="small">authorizer</text>
+
+  <!-- API Gateway → auth-cpf (rota AWS_PROXY) -->
+  <path class="edge" d="M850 160 L850 180" marker-end="url(#arrow)"/>
+  <text x="854" y="174" class="small">/auth/cpf</text>
+
+  <!-- auth-cpf → RDS (ENI na VPC) -->
+  <path class="edge-d" d="M850 262 L850 300 L1050 300 L1050 672 L1008 672" marker-end="url(#arrow-d)"/>
+  <text x="1054" y="486" text-anchor="start" class="small">ENI privada</text>
+  <text x="1054" y="500" text-anchor="start" class="small">:5432</text>
+
+  <!-- API Gateway → ALB (VPC Link) -->
+  <path class="edge" d="M700 160 L700 600 L266 600 L266 620" marker-end="url(#arrow)"/>
+  <text x="710" y="590" text-anchor="start" class="small">VPC Link · HTTP_PROXY :80</text>
+
+  <!-- NAT → IGW (egress: nodes/rds saem pelo NAT, NAT sai pelo IGW) -->
+  <path class="edge-d" d="M230 492 L230 464 L480 464 L480 448" marker-end="url(#arrow-d)"/>
+
+  <!-- ALB → Node A -->
+  <path class="edge" d="M210 710 L210 726 L252 726 L252 760" marker-end="url(#arrow)"/>
+
+  <!-- ALB → Node B -->
+  <path class="edge" d="M330 710 L330 726 L594 726 L594 760" marker-end="url(#arrow)"/>
+
+  <!-- Pods → RDS -->
+  <path class="edge" d="M748 815 L772 815" marker-end="url(#arrow)"/>
+  <text x="760" y="808" text-anchor="middle" class="small">5432</text>
+
+  <!-- Node A → NAT (egress) -->
+  <path class="edge-d" d="M252 762 L252 570 L230 570 L230 554" marker-end="url(#arrow-d)"/>
+
+  <!-- Node B → NAT (egress) -->
+  <path class="edge-d" d="M594 762 L594 578 L230 578 L230 554" marker-end="url(#arrow-d)"/>
+
+  <!-- GitHub → ECR -->
+  <path class="edge-d" d="M1310 160 L1310 180" marker-end="url(#arrow-d)"/>
+
+  <!-- ECR → EKS (pull image) -->
+  <path class="edge-d" d="M1170 218 L1140 218 L1140 510 L620 510 L620 726" marker-end="url(#arrow-d)"/>
+  <text x="880" y="504" text-anchor="middle" class="small">pull image</text>
+
+  <!-- GitHub → S3 (tfstate, contorna pela direita) -->
+  <path class="edge-d" d="M1450 124 L1474 124 L1474 307 L1452 307" marker-end="url(#arrow-d)"/>
+  <text x="1480" y="220" text-anchor="start" class="small">tfstate</text>
+
+  <!-- ════════════════════════════════════
+       LEGENDA
+       ════════════════════════════════════ -->
+  <rect x="1170" y="586" width="280" height="120" rx="12" fill="#fff" stroke="#cfd8dc" stroke-width="1.5"/>
+  <text x="1190" y="612" class="lbl">Legenda</text>
+  <line x1="1190" y1="632" x2="1230" y2="632" class="edge" marker-end="url(#arrow)"/>
+  <text x="1242" y="636" class="small">tráfego / requisição</text>
+  <line x1="1190" y1="660" x2="1230" y2="660" class="edge-d" marker-end="url(#arrow-d)"/>
+  <text x="1242" y="664" class="small">deploy / egress / imagem</text>
+  <text x="1190" y="686" class="small">Rosa: API Gateway · Roxo: ALB/rede</text>
+  <text x="1190" y="700" class="small">Laranja: Lambda/EKS/ECR · Azul: RDS · Verde: S3</text>
+</svg>

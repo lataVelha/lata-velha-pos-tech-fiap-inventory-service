@@ -1,0 +1,106 @@
+services:
+  app:
+    container_name: lata-velha
+    build: "."
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-docker}
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT:-docker}
+      DD_API_KEY: ${DD_API_KEY}
+      OTEL_SERVICE_NAME: lata-velha-api
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=docker,service.version=0.0.1,service.name=lata-velha
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://datadog-agent:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://datadog-agent:4318/v1/traces
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://datadog-agent:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: http://datadog-agent:4318/v1/logs
+      OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_METRICS_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: http/protobuf
+      DEPLOYMENT_ENVIRONMENT_NAME: docker
+      SERVICE_VERSION: 0.0.1
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lata_velha
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: "587"
+      SPRING_MAIL_USERNAME: lata.velha.fiap@gmail.com
+      SPRING_MAIL_PASSWORD: suxj nonb utdn dokg
+      JWT_ISSUER: lata-velha
+      JWT_EXPIRES_IN: "3600"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      datadog-agent:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-lata-velha
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lata_velha
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d lata_velha"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app_network
+
+  datadog-agent:
+    image: datadog/agent:7
+    container_name: datadog-agent
+    restart: unless-stopped
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: us5.datadoghq.com
+      DD_HOSTNAME: lata-velha-docker
+      DD_APM_ENABLED: "true"
+      DD_APM_NON_LOCAL_TRAFFIC: "true"
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT: 0.0.0.0:4318
+      DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT: 0.0.0.0:4317
+      DD_LOGS_ENABLED: "true"
+      DD_OTLP_CONFIG_LOGS_ENABLED: "true"
+      DD_APM_FEATURES: "enable_operation_and_resource_name_logic_v2"
+      DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED: "false"
+      DD_PROCESS_CONFIG_CONTAINER_COLLECTION_ENABLED: "false"
+      DD_PROCESS_CONFIG_LOG_COLLECTION_ENABLED: "false"
+      DD_SYSTEM_PROBE_ENABLED: "false"
+      DD_SECURITY_AGENT_ENABLED: "false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "4318:4318"
+      - "4317:4317"
+      - "8126:8126"
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:

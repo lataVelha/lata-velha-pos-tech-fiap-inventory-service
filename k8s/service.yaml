@@ -1,0 +1,18 @@
+# NodePort (30080) — destino do tráfego encaminhado pelo ALB.
+apiVersion: v1
+kind: Service
+metadata:
+  name: lata-velha-api
+  namespace: lata-velha
+  labels:
+    app: lata-velha-api
+spec:
+  selector:
+    app: lata-velha-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
+      protocol: TCP
+  type: NodePort

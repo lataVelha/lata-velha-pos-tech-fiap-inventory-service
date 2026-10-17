@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-lata-velha
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lata_velha
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d lata_velha"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - db_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-lata-velha
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - db_network
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: lata-velha-sonar
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+
+volumes:
+  postgres_data_dev:
+  pgadmin_data:
+
+networks:
+  db_network:

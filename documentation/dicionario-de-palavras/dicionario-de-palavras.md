@@ -1,0 +1,69 @@
+# 📘 Dicionário de Palavras
+- **Ordem de Serviço (OS):** Registro principal do atendimento realizado pela oficina, responsável por controlar todo o ciclo de vida do atendimento desde a criação até a entrega do Veículo.
+- **Proprietário:** Pessoa física ou jurídica responsável pelo Veículo e pela decisão de aprovar ou recusar as Execuções do Serviço identificadas na OS. Substitui o termo Cliente.
+- **Funcionário:** Pessoa que trabalha na Oficina e executa ações no Sistema conforme seu cargo operacional, como Atendente, Mecânico ou Administrador.
+- **Perfil de Acesso:** Conjunto de permissões atribuídas a um Funcionário conforme seu cargo no Sistema.
+- **Atendente:** Funcionário responsável por cadastrar Proprietário, Veículo e criar ou atualizar a OS.
+- **Mecânico:** Funcionário responsável por realizar o Diagnóstico, identificar Execuções do Serviço e executar as Execuções do Serviço aprovadas.
+- **Administrador:** Funcionário responsável por gerenciar cadastro de Peças, Serviços e controle de Estoque.
+- **Veículo:** Bem pertencente ao Proprietário, identificado por placa, marca, modelo e ano, que será atendido pela oficina.
+- **Queixa:** Problema, sintoma ou solicitação informada pelo Proprietário no momento da criação da OS.
+- **Diagnóstico:** Avaliação técnica realizada pelo Mecânico para identificar as Execuções do Serviço e as Peças necessárias para resolver as Queixas do Veículo.
+- **Serviço:** Atividade técnica cadastrada no Sistema e que pode ser vinculada a uma OS como uma Execução do Serviço.
+- **Execução do Serviço:** Serviço vinculado a uma OS, identificado durante o Diagnóstico, submetido à aprovação do Proprietário e, quando aprovado, executado individualmente pelo Mecânico.
+- **Serviços Identificados:** Conjunto de Execuções do Serviço identificadas pelo Mecânico após o Diagnóstico da OS e apresentadas ao Proprietário para Aprovação Granular.
+- **Execução do Serviço Pendente:** Status inicial da Execução do Serviço após sua identificação no Diagnóstico, indicando que ainda aguarda aprovação ou recusa pelo Proprietário.
+- **Execução do Serviço Aprovada:** Status da Execução do Serviço após aprovação pelo Proprietário, indicando que ela pode seguir para reserva de peças e execução, desde que possua as Peças Alocadas necessárias.
+- **Execução do Serviço Recusada:** Status da Execução do Serviço após recusa pelo Proprietário, indicando que ela permanecerá registrada na OS, mas não será executada.
+- **Execução do Serviço Aguardando Peça:** Status da Execução do Serviço Aprovada que ainda não pode ser executada porque uma ou mais Peças Alocadas não foram totalmente reservadas.
+- **Execução do Serviço Em Execução:** Status da Execução do Serviço Aprovada quando o Mecânico inicia sua execução no Veículo.
+- **Execução do Serviço Finalizada:** Status da Execução do Serviço após sua conclusão técnica pelo Mecânico.
+- **Peça:** Item físico ou material consumível utilizado em uma Execução do Serviço.
+- **Estoque de Peça:** Controle de disponibilidade de Peças da oficina.
+- **Peça Alocada:** Item da OS que representa uma Peça necessária para uma Execução do Serviço, contendo quantidade solicitada, quantidade reservada e status de alocação.
+- **Peça Alocada Pendente:** Status inicial da Peça Alocada, indicando que ainda não houve reserva ou encomenda.
+- **Peça Alocada Parcialmente Reservada:** Status da Peça Alocada quando apenas parte da quantidade solicitada está disponível no Estoque e essa quantidade foi reservada.
+- **Peça Alocada Reservada:** Status da Peça Alocada quando toda a quantidade solicitada está disponível no Estoque e foi reservada.
+- **Peça Alocada Encomendada:** Status da Peça Alocada quando não há quantidade disponível no Estoque e foi solicitada uma Encomenda de Peça para atender a Execução do Serviço Aprovada.
+- **Reserva de Estoque:** Ação de separar do Estoque a quantidade disponível de uma Peça Alocada para uso em uma Execução do Serviço Aprovada.
+- **Reserva de Estoque Total:** Situação em que toda a quantidade necessária de uma Peça Alocada foi reservada no Estoque.
+- **Reserva de Estoque Parcial:** Situação em que apenas parte da quantidade necessária de uma Peça Alocada foi reservada, exigindo Encomenda de Peça para a quantidade faltante.
+- **Reserva de Estoque Encomendada:** Situação em que nenhuma quantidade da Peça Alocada foi reservada por falta de disponibilidade, exigindo Encomenda de Peça para a quantidade total.
+- **Encomenda de Peça:** Solicitação de reposição de Peça ao fornecedor para atender uma Execução do Serviço Aprovada.
+- **Reposição de Estoque:** Entrada de Peças no Estoque após compra ou recebimento.
+- **Baixa de Estoque:** Retirada definitiva de Peças do Estoque após instalação ou uso na Execução do Serviço.
+- **Aprovação Granular da OS:** Decisão do Proprietário de aprovar todas, algumas ou nenhuma das Execuções do Serviço identificadas na OS.
+- **Valor Aprovado da OS:** Soma dos valores das Execuções do Serviço aprovadas e das Peças previstas para execução após a decisão do Proprietário.
+- **Valor Final da OS:** Valor consolidado após a finalização das Execuções do Serviço aprovadas, considerando os serviços executados e as Peças efetivamente instaladas.
+- **Ordem de Serviço Recebida:** Status inicial da OS após sua criação no Sistema.
+- **Ordem de Serviço Em Diagnóstico:** Status da OS enquanto o Mecânico realiza o Diagnóstico do Veículo.
+- **Ordem de Serviço Aguardando Aprovação:** Status da OS após o Diagnóstico, aguardando decisão do Proprietário sobre as Execuções do Serviço identificadas.
+- **Ordem de Serviço Aprovada:** Status da OS quando ao menos uma Execução do Serviço foi aprovada pelo Proprietário. A OS permanece nesse status enquanto nenhuma Execução do Serviço aprovada entrou em execução.
+- **Ordem de Serviço Reprovada:** Status da OS quando todas as Execuções do Serviço identificadas foram recusadas pelo Proprietário.
+- **Ordem de Serviço Em Execução:** Status da OS quando a primeira Execução do Serviço aprovada entra em execução.
+- **Ordem de Serviço Finalizada:** Status da OS quando todas as Execuções do Serviço aprovadas foram finalizadas.
+- **Ordem de Serviço Entregue:** Status da OS após o Proprietário retirar o Veículo.
+- **Notificação por E-mail:** Comunicação enviada pelo Sistema por e-mail para informar atores sobre eventos da OS e do Estoque, como OS recebida, diagnóstico iniciado, aprovação solicitada, OS aprovada, OS reprovada, execução iniciada, OS finalizada, veículo entregue ou encomenda de peça.
+
+---
+
+# 🚫 Termos Evitados
+- **Cliente:** usar **Proprietário**.
+- **Orçamento:** usar **Serviços Identificados**, quando se referir ao conjunto apresentado ao Proprietário para aprovação.
+- **Proposta de Serviços da OS:** usar **Serviços Identificados**.
+- **Orçamento Aprovado:** usar **Valor Aprovado da OS** ou **Execuções do Serviço Aprovadas**, conforme o contexto.
+- **Orçamento Recusado:** usar **Ordem de Serviço Reprovada**, quando todas as Execuções do Serviço forem recusadas; ou **Execução do Serviço Recusada**, quando a recusa for individual.
+- **Valor do Orçamento:** usar **Valor Aprovado da OS** ou **Valor Final da OS**, conforme o momento do fluxo.
+- **Produto:** usar **Peça**.
+- **Insumo:** usar **Peça**.
+- **Serviço Pendente:** usar **Execução do Serviço Pendente**.
+- **Serviço Aprovado:** usar **Execução do Serviço Aprovada**.
+- **Serviço Recusado:** usar **Execução do Serviço Recusada**.
+- **Serviço Aguardando Peça:** usar **Execução do Serviço Aguardando Peça**.
+- **Serviço Em Execução:** usar **Execução do Serviço Em Execução**.
+- **Serviço Finalizado:** usar **Execução do Serviço Finalizada**.
+- **Ticket:** usar **Ordem de Serviço**.
+- **Chamado:** usar **Ordem de Serviço**.
+- **Demanda:** usar **Ordem de Serviço**.
+- **Encerrar OS:** usar **Finalizar Ordem de Serviço**, quando se referir à conclusão técnica, ou **Entregar Veículo**, quando se referir à retirada pelo Proprietário.
+- **Autorizar Serviço:** usar **Aprovar Execução do Serviço**.

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <conversionRule conversionWord="levelColorStart"
+                     converterClass="br.com.lata.velha.shared.infrastructure.logging.LevelColorStartConverter"/>
+    <conversionRule conversionWord="levelColorEnd"
+                     converterClass="br.com.lata.velha.shared.infrastructure.logging.LevelColorEndConverter"/>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%levelColorStart%-5level [%X{trace_id:-N/A}] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %C{0}.%M : %m%n%wEx%levelColorEnd"/>
+
+    <property name="FILE_LOG_PATTERN"
+              value="%-5level [%X{trace_id:-N/A}] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %C{0}.%M : %m%n%wEx"/>
+
+    <springProfile name="!prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="OpenTelemetry"
+                  class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureExperimentalAttributes>true</captureExperimentalAttributes>
+            <captureCodeAttributes>true</captureCodeAttributes>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="OpenTelemetry"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <appender name="FILE_DEV" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>./log/app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>./log/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>20MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="OpenTelemetry"
+                  class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureExperimentalAttributes>true</captureExperimentalAttributes>
+            <captureCodeAttributes>true</captureCodeAttributes>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="FILE_DEV"/>
+            <appender-ref ref="OpenTelemetry"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":"lata-velha-api"}</customFields>
+                <includeCallerData>true</includeCallerData>
+            </encoder>
+        </appender>
+
+        <appender name="OpenTelemetry"
+                  class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureExperimentalAttributes>true</captureExperimentalAttributes>
+            <captureCodeAttributes>true</captureCodeAttributes>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_JSON"/>
+            <appender-ref ref="OpenTelemetry"/>
+        </root>
+    </springProfile>
+
+</configuration>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head><meta charset="UTF-8" /></head>
+  <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background-color:#f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:40px 0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0"
+            style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+
+            <!-- Header -->
+            <tr>
+              <td style="background-color:#1a1a2e;padding:30px;text-align:center;">
+                <h1 style="color:#ffffff;margin:0;font-size:28px;">🚗 Lata Velha</h1>
+                <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:14px;">Encomenda de Peça</p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:40px 30px;">
+                <h2 style="color:#1a1a2e;margin:0 0 10px;font-size:22px;">
+                  Peça a encomendar
+                </h2>
+                <p style="color:#555;font-size:16px;line-height:1.6;margin:0 0 25px;">
+                  Uma peça precisa ser encomendada para prosseguir com a execução de um serviço.
+                </p>
+
+                <!-- Execução -->
+                <table width="100%" cellpadding="0" cellspacing="0"
+                  style="background-color:#e8f4f8;border-radius:8px;margin:0 0 12px;">
+                  <tr>
+                    <td style="padding:15px 20px;">
+                      <p style="color:#888;font-size:12px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px;">Execução de Serviço</p>
+                      <p style="color:#1a1a2e;font-size:20px;font-weight:bold;margin:0;">
+                        Nº <span th:text="${execucaoServicoId}">0000</span>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Peça -->
+                <table width="100%" cellpadding="0" cellspacing="0"
+                  style="background-color:#fff3cd;border-radius:8px;border-left:4px solid #ffc107;margin:0 0 12px;">
+                  <tr>
+                    <td style="padding:15px 20px;">
+                      <p style="color:#888;font-size:12px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px;">Peça a encomendar</p>
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td>
+                            <p style="color:#333;font-size:16px;font-weight:bold;margin:0;" th:text="${pecaNome}">Peça</p>
+                          </td>
+                          <td style="text-align:right;">
+                            <p style="color:#ffc107;font-size:20px;font-weight:bold;margin:0;">
+                              x<span th:text="${quantidade}">0</span>
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background-color:#f8f9fa;padding:20px 30px;text-align:center;border-top:1px solid #eee;">
+                <p style="color:#999;font-size:12px;margin:0;">© 2026 Lata Velha — FIAP Pós-Tech</p>
+                <p style="color:#bbb;font-size:11px;margin:8px 0 0;">Este é um email automático. Não responda.</p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lata-velha-config
+  namespace: lata-velha
+data:
+  ENVIRONMENT: "prod"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
+  SPRING_FLYWAY_ENABLED: "true"
+  SPRING_MAIL_HOST: "smtp.gmail.com"
+  SPRING_MAIL_PORT: "587"
+  JWT_ISSUER: "lata-velha"
+  JWT_EXPIRES_IN: "3600"
+  OTEL_SERVICE_NAME: "lata-velha-api"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED: "true"
+  # Variáveis OTel com $(HOST_IP) movidas para deployment.yaml (expansão correta)
+  OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "delta"
+  OTEL_RESOURCE_ATTRIBUTES: "deployment.environment.name=prod,service.version=0.0.1,service.name=lata-velha-api"

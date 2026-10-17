@@ -1,0 +1,5 @@
+mail_username = "lata.velha.fiap@gmail.com"
+mail_password = "xxxx xxxx xxxx xxxx"   # Senha de App do Gmail (nao a senha da conta)
+
+# As variaveis abaixo sao injetadas automaticamente pelo apply.sh — nao coloque aqui:
+# state_bucket, cluster_endpoint, cluster_ca_data, cluster_name, docker_image

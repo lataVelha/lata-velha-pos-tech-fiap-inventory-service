@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#607d8b"/>
+    </marker>
+    <style>
+      .title { font-size: 25px; font-weight: 700; fill: #232f3e; }
+      .sub   { font-size: 13px; fill: #5f6b7a; }
+      .badge { font-size: 19px; font-weight: 700; fill: #ffffff; }
+      .job   { font-size: 16px; font-weight: 700; fill: #232f3e; }
+      .repo  { font-size: 12px; font-weight: 700; fill: #ffffff; font-family: 'Courier New', monospace; }
+      .needs { font-size: 11px; fill: #90a4ae; }
+      .faz   { font-size: 13px; fill: #263238; }
+      .por   { font-size: 13px; fill: #607d8b; }
+      .k     { font-weight: 700; fill: #37474f; }
+      .spine { stroke: #b0bec5; stroke-width: 2.4; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="1400" fill="#f4f6f9"/>
+  <text x="40" y="46" class="title">CI/CD — Lata Velha · 4 repositórios</text>
+  <text x="40" y="69" class="sub">Cada repo tem seu próprio state e workflow — a ordem entre eles é encadeada via workflow_call.</text>
+
+  <!-- Gatilho -->
+  <rect x="200" y="92" width="600" height="66" rx="16" fill="#eceff1" stroke="#90a4ae"/>
+  <text x="500" y="117" text-anchor="middle" class="faz"><tspan class="k">▶ Push em master:</tspan>  aplica de verdade, na ordem abaixo (auto)</text>
+  <text x="500" y="141" text-anchor="middle" class="faz"><tspan class="k">▶ workflow_dispatch:</tspan>  disparo manual — com destroy:true, desfaz na ordem inversa</text>
+
+  <!-- Spine -->
+  <path class="spine" d="M80 174 L80 1090"/>
+  <path class="spine" d="M80 256 L80 330" marker-end="url(#a)"/>
+  <path class="spine" d="M80 412 L80 486" marker-end="url(#a)"/>
+  <path class="spine" d="M80 568 L80 642" marker-end="url(#a)"/>
+  <path class="spine" d="M80 724 L80 798" marker-end="url(#a)"/>
+  <path class="spine" d="M80 880 L80 954" marker-end="url(#a)"/>
+  <path class="spine" d="M80 1036 L80 1073" marker-end="url(#a)"/>
+
+  <!-- ===== STEP 1 : infra (bootstrap) ===== -->
+  <line x1="80" y1="224" x2="120" y2="224" class="spine"/>
+  <circle cx="80" cy="224" r="21" fill="#0277BD"/>
+  <text x="80" y="231" text-anchor="middle" class="badge">1</text>
+  <rect x="120" y="176" width="800" height="128" rx="12" fill="#ffffff" stroke="#0277BD"/>
+  <rect x="140" y="192" width="86" height="20" rx="10" fill="#0277BD"/>
+  <text x="183" y="206" text-anchor="middle" class="repo">infra</text>
+  <text x="236" y="207" class="job">bootstrap — VPC + EKS + ECR</text>
+  <text x="900" y="205" text-anchor="end" class="needs">bootstrap.yml</text>
+  <line x1="140" y1="222" x2="900" y2="222" stroke="#e1eef7"/>
+  <text x="140" y="248" class="faz"><tspan class="k">Faz:</tspan>  cria o bucket S3 do state (se não existir) e aplica VPC + EKS + ECR.</text>
+  <text x="140" y="272" class="por"><tspan class="k">Por quê:</tspan>  base de tudo — nenhum outro repo tem pra onde rodar sem isso existir.</text>
+  <text x="140" y="294" class="por">Não depende de nenhum outro repo.</text>
+
+  <!-- ===== STEP 2 : infra (addons) ===== -->
+  <line x1="80" y1="380" x2="120" y2="380" class="spine"/>
+  <circle cx="80" cy="380" r="21" fill="#7E57C2"/>
+  <text x="80" y="387" text-anchor="middle" class="badge">2</text>
+  <rect x="120" y="332" width="800" height="128" rx="12" fill="#ffffff" stroke="#7E57C2"/>
+  <rect x="140" y="348" width="86" height="20" rx="10" fill="#7E57C2"/>
+  <text x="183" y="362" text-anchor="middle" class="repo">infra</text>
+  <text x="236" y="363" class="job">addons — ALB interno + "casco" do API Gateway</text>
+  <text x="900" y="361" text-anchor="end" class="needs">addons.yml · needs: 1</text>
+  <line x1="140" y1="378" x2="900" y2="378" stroke="#ece7f7"/>
+  <text x="140" y="404" class="faz"><tspan class="k">Faz:</tspan>  ALB (interno) + API Gateway (API + VPC Link + Stage, sem rotas) + Cluster Autoscaler.</text>
+  <text x="140" y="428" class="por"><tspan class="k">Por quê:</tspan>  roda logo após o bootstrap, no mesmo disparo — não depende do lambda nem do</text>
+  <text x="200" y="450" class="por">app (o Gateway começa vazio; cada um anexa a própria rota depois).</text>
+
+  <!-- ===== STEP 3 : infra-db ===== -->
+  <line x1="80" y1="536" x2="120" y2="536" class="spine"/>
+  <circle cx="80" cy="536" r="21" fill="#1565C0"/>
+  <text x="80" y="543" text-anchor="middle" class="badge">3</text>
+  <rect x="120" y="488" width="800" height="128" rx="12" fill="#ffffff" stroke="#1565C0"/>
+  <rect x="140" y="504" width="86" height="20" rx="10" fill="#1565C0"/>
+  <text x="183" y="518" text-anchor="middle" class="repo">infra-db</text>
+  <text x="270" y="519" class="job">RDS PostgreSQL</text>
+  <text x="900" y="517" text-anchor="end" class="needs">main.yml · needs: 1</text>
+  <line x1="140" y1="534" x2="900" y2="534" stroke="#e1eaf7"/>
+  <text x="140" y="560" class="faz"><tspan class="k">Faz:</tspan>  provisiona o RDS PostgreSQL na VPC do bootstrap.</text>
+  <text x="140" y="584" class="por"><tspan class="k">Por quê:</tspan>  lambda (auth-cpf) e app precisam do banco já existindo antes de rodar.</text>
+  <text x="140" y="606" class="por">Só depende do bootstrap — pode rodar em paralelo ao addons.</text>
+
+  <!-- ===== STEP 4 : lambda ===== -->
+  <line x1="80" y1="692" x2="120" y2="692" class="spine"/>
+  <circle cx="80" cy="692" r="21" fill="#ED7100"/>
+  <text x="80" y="699" text-anchor="middle" class="badge">4</text>
+  <rect x="120" y="644" width="800" height="128" rx="12" fill="#ffffff" stroke="#ED7100"/>
+  <rect x="140" y="660" width="86" height="20" rx="10" fill="#ED7100"/>
+  <text x="183" y="674" text-anchor="middle" class="repo">lambda</text>
+  <text x="264" y="675" class="job">auth-cpf + jwt-authorizer</text>
+  <text x="900" y="673" text-anchor="end" class="needs">main.yml · needs: 2, 3</text>
+  <line x1="140" y1="690" x2="900" y2="690" stroke="#fbe9de"/>
+  <text x="140" y="716" class="faz"><tspan class="k">Faz:</tspan>  builda e sobe as duas lambdas; anexa <tspan class="k">POST /auth/cpf</tspan> + a authorizer no</text>
+  <text x="200" y="738" class="faz">API Gateway do passo 2 (lê o api_id via remote_state).</text>
+  <text x="140" y="760" class="por"><tspan class="k">Por quê:</tspan>  login por CPF e validação de JWT na borda, antes do ALB/pod.</text>
+
+  <!-- ===== STEP 5 : app ===== -->
+  <line x1="80" y1="848" x2="120" y2="848" class="spine"/>
+  <circle cx="80" cy="848" r="21" fill="#2e7d32"/>
+  <text x="80" y="855" text-anchor="middle" class="badge">5</text>
+  <rect x="120" y="800" width="800" height="128" rx="12" fill="#ffffff" stroke="#2e7d32"/>
+  <rect x="140" y="816" width="86" height="20" rx="10" fill="#2e7d32"/>
+  <text x="183" y="830" text-anchor="middle" class="repo">app</text>
+  <text x="236" y="831" class="job">testes → build/push da imagem → deploy → verify</text>
+  <text x="900" y="829" text-anchor="end" class="needs">main.yml · needs: 3, 4</text>
+  <line x1="140" y1="846" x2="900" y2="846" stroke="#e6f0e6"/>
+  <text x="140" y="872" class="faz"><tspan class="k">Faz:</tspan>  builda a imagem (ECR) e aplica o deploy k8s; anexa a integração com o ALB +</text>
+  <text x="200" y="894" class="faz">as rotas públicas/protegidas no API Gateway (authorizer do passo 4); verifica o rollout.</text>
+  <text x="140" y="916" class="por"><tspan class="k">Por quê:</tspan>  último — depende do banco (3) e da authorizer (4) já existirem.</text>
+
+  <!-- Final -->
+  <circle cx="80" cy="1004" r="21" fill="#2e7d32"/>
+  <text x="80" y="1011" text-anchor="middle" class="badge" font-size="17">✓</text>
+  <rect x="120" y="978" width="800" height="52" rx="12" fill="#e8f5e9" stroke="#2e7d32"/>
+  <text x="140" y="1010" class="job" fill="#1b5e20">Deploy completo — app_api_endpoint respondendo</text>
+
+  <!-- ===== Como cada repo é chamado ===== -->
+  <rect x="120" y="1054" width="800" height="20" rx="10" fill="none"/>
+  <rect x="40" y="1080" width="920" height="120" rx="12" fill="#ffffff" stroke="#cfd8dc"/>
+  <text x="60" y="1106" class="job" font-size="14">Como cada repo é chamado</text>
+  <text x="60" y="1130" class="faz">Sozinho: push no próprio master (ou Run workflow) já aplica de verdade.</text>
+  <text x="60" y="1152" class="faz">Encadeado: cada repo expõe seu <tspan class="k">main.yml</tspan> (e o infra também <tspan class="k">bootstrap.yml</tspan>/</text>
+  <text x="72" y="1174" class="faz"><tspan class="k">addons.yml</tspan>) como <tspan class="k">workflow reusável</tspan> (<tspan class="k">on: workflow_call</tspan>), chamável de fora.</text>
+
+  <!-- ===== Destroy ===== -->
+  <rect x="40" y="1214" width="920" height="98" rx="12" fill="#fdecea" stroke="#c62828"/>
+  <text x="60" y="1240" class="job" font-size="14" fill="#b71c1c">Destroy — ordem inversa</text>
+  <text x="60" y="1264" class="faz">app → lambda → infra-db → infra (addons) → infra (bootstrap)</text>
+  <text x="60" y="1286" class="por">app/lambda dependem do api_id do addons — têm que sumir antes dele. addons/bootstrap</text>
+  <text x="72" y="1304" class="por">também são sempre nessa ordem (recurso de rede antes da VPC que o contém).</text>
+
+  <!-- Legenda -->
+  <rect x="40" y="1330" width="920" height="56" rx="12" fill="#ffffff" stroke="#cfd8dc"/>
+  <circle cx="66" cy="1358" r="9" fill="#0277BD"/>
+  <text x="84" y="1362" class="por">infra (bootstrap)</text>
+  <circle cx="230" cy="1358" r="9" fill="#7E57C2"/>
+  <text x="248" y="1362" class="por">infra (addons)</text>
+  <circle cx="390" cy="1358" r="9" fill="#1565C0"/>
+  <text x="408" y="1362" class="por">infra-db</text>
+  <circle cx="520" cy="1358" r="9" fill="#ED7100"/>
+  <text x="538" y="1362" class="por">lambda</text>
+  <circle cx="640" cy="1358" r="9" fill="#2e7d32"/>
+  <text x="658" y="1362" class="por">app</text>
+</svg>

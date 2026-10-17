@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Lata Velha",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "lata_velha",
+            "Username": "admin",
+            "SSLMode": "prefer"
+        }
+    }
+}

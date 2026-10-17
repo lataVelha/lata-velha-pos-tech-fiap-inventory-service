@@ -1,0 +1,158 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: &quot;Segoe UI&quot;, Arial, sans-serif;
+      background-color: #f4f4f4;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background-color: #f4f4f4; padding: 40px 0"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              background-color: #ffffff;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                style="
+                  background-color: #1a1a2e;
+                  padding: 30px;
+                  text-align: center;
+                "
+              >
+                <h1 style="color: #ffffff; margin: 0; font-size: 28px">
+                  🚗 Lata Velha
+                </h1>
+                <p style="color: #a0a0b0; margin: 8px 0 0; font-size: 14px">
+                  Sistema de Gestão Automotiva
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding: 40px 30px">
+                <h2 style="color: #1a1a2e; margin: 0 0 20px; font-size: 22px">
+                  Bem-vindo, <span th:text="${nome}">Nome</span>!
+                </h2>
+
+                <p
+                  style="
+                    color: #555555;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    margin: 0 0 20px;
+                  "
+                >
+                  Seu cadastro foi realizado com sucesso. Agora você pode
+                  registrar seus veículos e acompanhar os serviços.
+                </p>
+
+                <!-- Info Card -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 20px">
+                      <p
+                        style="
+                          color: #888;
+                          font-size: 12px;
+                          margin: 0 0 4px;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        "
+                      >
+                        Dados do cadastro
+                      </p>
+
+                      <table width="100%" cellpadding="8" cellspacing="0">
+                        <tr>
+                          <td
+                            style="color: #888; font-size: 14px; width: 120px"
+                          >
+                            Nome:
+                          </td>
+                          <td
+                            style="
+                              color: #333;
+                              font-size: 14px;
+                              font-weight: bold;
+                            "
+                            th:text="${nome}"
+                          >
+                            Nome
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="color: #888; font-size: 14px">
+                            Documento:
+                          </td>
+                          <td
+                            style="
+                              color: #333;
+                              font-size: 14px;
+                              font-weight: bold;
+                            "
+                            th:text="${documento}"
+                          >
+                            000.000.000-00
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #f8f9fa;
+                  padding: 20px 30px;
+                  text-align: center;
+                  border-top: 1px solid #eee;
+                "
+              >
+                <p style="color: #999; font-size: 12px; margin: 0">
+                  © 2026 Lata Velha — FIAP Pós-Tech
+                </p>
+                <p style="color: #bbb; font-size: 11px; margin: 8px 0 0">
+                  Este é um email automático. Não responda.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
