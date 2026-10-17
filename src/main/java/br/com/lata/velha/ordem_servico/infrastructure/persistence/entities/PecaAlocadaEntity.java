@@ -93,7 +93,4 @@ public class PecaAlocadaEntity {
         peca.setId(this.pecaId);
         return peca;
     }
-
-    // execucaoServicoId é apenas uma referência de aplicação — EXECUCAO_SERVICO vive no
-    // banco do OsService, então não há entidade local para expor aqui.
 }

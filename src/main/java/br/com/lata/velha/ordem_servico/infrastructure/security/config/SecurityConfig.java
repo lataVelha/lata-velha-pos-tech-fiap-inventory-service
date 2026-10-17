@@ -29,14 +29,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
-                        // público
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
-
-                        // peças e estoque — qualquer perfil autenticado consulta, ADMIN/MECANICO movimentam
                         .requestMatchers("/pecas/**").hasAnyRole(USER, MECANICO, ADMIN)
-
-                        // qualquer outra rota exige autenticação
                         .anyRequest().authenticated()
                 )
 

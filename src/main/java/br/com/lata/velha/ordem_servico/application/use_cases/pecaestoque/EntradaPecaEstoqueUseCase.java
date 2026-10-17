@@ -20,7 +20,7 @@ public class EntradaPecaEstoqueUseCase {
         var estoque = gateway.getEstoquePorPecaId(pecaId);
         estoque.adicionar(request.quantidade());
 
-        // Reserva de peças alocadas pendentes passa a ser responsabilidade do fluxo de
+        // TODO: Reserva de peças alocadas pendentes passa a ser responsabilidade do fluxo de
         // conferência de estoque (ConferirEstoqueExecucaoUseCase), acionado via evento
         // OrcamentoAprovado — general-flow.md passo 8-10. Entrada de estoque fica autocontida.
         logger.logInfo("Salvando estoque atualizado - pecaId={}", pecaId);
