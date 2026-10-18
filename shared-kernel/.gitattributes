@@ -1,8 +1,0 @@
-* text=auto
-
-*.java text eol=crlf
-*.md text eol=crlf
-*.xml text eol=crlf
-*.properties text eol=crlf
-
-*.jar binary
