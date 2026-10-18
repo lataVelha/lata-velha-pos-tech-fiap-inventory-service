@@ -3,6 +3,7 @@ FROM maven:3-amazoncorretto-21 AS build
 WORKDIR /app
 
 COPY pom.xml ./
+COPY shared-kernel ./shared-kernel
 RUN mvn dependency:go-offline -q
 
 COPY src ./src
