@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface PecaAlocadaJpaRepository extends JpaRepository<PecaAlocadaEntity, Long> {
     Page<PecaAlocadaEntity> findByExecucaoServicoId(Long servicoOsId, Pageable pageable);
 
+    List<PecaAlocadaEntity> findAllByExecucaoServicoId(Long servicoOsId);
+
     @Query("""
                 select coalesce(sum(p.quantidadeReservada),0)
                 from PecaAlocadaEntity p

@@ -4,6 +4,7 @@ import br.com.lata.velha.ordem_servico.application.dtos.request.MovimentarPecaEs
 import br.com.lata.velha.ordem_servico.domain.entities.PecaEstoque;
 import br.com.lata.velha.ordem_servico.infrastructure.persistence.entities.PecaEntity;
 import br.com.lata.velha.ordem_servico.infrastructure.persistence.entities.PecaEstoqueEntity;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -34,13 +36,15 @@ class EntradaPecaEstoqueUseCaseIT {
     @Autowired private EntityManager em;
     @Autowired private Logger logger;
 
+    @MockBean private EventPublisher eventPublisher;
+
     private EntradaPecaEstoqueUseCase useCase;
 
     private Long pecaId;
 
     @BeforeEach
     void setUp() {
-        useCase = new EntradaPecaEstoqueUseCase(gateway, logger);
+        useCase = new EntradaPecaEstoqueUseCase(gateway, eventPublisher, logger);
 
         PecaEntity peca = new PecaEntity();
         peca.setNome("Filtro de óleo");

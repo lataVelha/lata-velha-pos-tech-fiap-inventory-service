@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 /**
  * Deduz do estoque as peças utilizadas ao finalizar uma execução de serviço — lógica
  * trazida de FinalizarServicoUseCase.retirarEstoques do OsService.
- * TODO: futuro consumidor do evento ServiceEnded — general-flow.md passo 13-14.
  */
 public class DeduzirEstoqueExecucaoUseCase {
 
