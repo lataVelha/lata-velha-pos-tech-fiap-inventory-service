@@ -6,6 +6,7 @@ import br.com.lata.velha.ordem_servico.application.presenters.peca.*;
 import br.com.lata.velha.ordem_servico.application.presenters.pecaestoque.*;
 import br.com.lata.velha.ordem_servico.application.use_cases.peca.*;
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque.*;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,7 @@ public class PecaBeansConfig {
     private final SaidaPecaEstoquePresenter saidaPresenter;
     private final AjustarPecaEstoqueGateway ajustarGateway;
     private final AjustarPecaEstoquePresenter ajustarPresenter;
+    private final EventPublisher eventPublisher;
 
     @Bean
     public PecaCleanController pecaCleanController() {
@@ -63,6 +65,7 @@ public class PecaBeansConfig {
                 saidaPresenter,
                 ajustarGateway,
                 ajustarPresenter,
+                eventPublisher,
                 logger);
     }
 }

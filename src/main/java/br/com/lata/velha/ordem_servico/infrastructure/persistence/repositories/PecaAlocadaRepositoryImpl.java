@@ -79,4 +79,10 @@ public class PecaAlocadaRepositoryImpl implements PecaAlocadaRepository {
                     return new IllegalArgumentException("Peça alocada não encontrada");
                 });
     }
+
+    @Override
+    public List<PecaAlocada> findAllByExecucaoServicoId(Long execucaoServicoId) {
+        return jpaRepository.findAllByExecucaoServicoId(execucaoServicoId)
+                .stream().map(PecaAlocadaEntity::toDomain).toList();
+    }
 }

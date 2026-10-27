@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 /**
  * Confere e reserva estoque para as peças necessárias de execuções de serviço — lógica
  * trazida de AprovarOrdemServicoUseCase/ReceberAprovacaoOrcamentoClienteUseCase do OsService.
- * TODO: futuro consumidor do evento OrcamentoAprovado, emite InventoryChecked — general-flow.md passo 8-10.
  */
 public class ConferirEstoqueExecucaoUseCase {
 

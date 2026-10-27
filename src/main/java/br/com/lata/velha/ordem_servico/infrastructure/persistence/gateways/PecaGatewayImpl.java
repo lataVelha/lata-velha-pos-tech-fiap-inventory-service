@@ -7,11 +7,13 @@ import br.com.lata.velha.ordem_servico.domain.entities.*;
 import br.com.lata.velha.ordem_servico.domain.repositories.*;
 import br.com.lata.velha.shared.domain.pagination.PaginatedResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -29,7 +31,9 @@ public class PecaGatewayImpl implements
         EntradaPecaEstoqueGateway,
         SaidaPecaEstoqueGateway,
         ConferirEstoqueGateway,
-        DeduzirEstoqueGateway {
+        DeduzirEstoqueGateway,
+        ReceberOrcamentoAprovadoGateway,
+        ReceberServiceEndedGateway {
 
     private final PecaRepository pecaRepository;
     private final PecaEstoqueRepository pecaEstoqueRepository;
@@ -80,7 +84,7 @@ public class PecaGatewayImpl implements
     public PecaAlocada getOuCriarPecaAlocada(Long execucaoServicoId, Long pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca) {
         try {
             return pecaAlocadaRepository.findByPecaIdAndServicoOsId(pecaId, execucaoServicoId);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             return PecaAlocada.create(pecaId, execucaoServicoId, valorUnitarioPeca, quantidadeSolicitada);
         }
     }
@@ -93,5 +97,29 @@ public class PecaGatewayImpl implements
     @Override
     public void salvarEstoques(Collection<PecaEstoque> estoques) {
         pecaEstoqueRepository.saveAll(estoques);
+    }
+
+    @Override
+    public Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, Long pecaId) {
+        try {
+            return Optional.of(pecaAlocadaRepository.findByPecaIdAndServicoOsId(pecaId, execucaoServicoId));
+        } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<Peca> getPecasPorIds(Set<Long> ids) {
+        return pecaRepository.findAllByIds(ids);
+    }
+
+    @Override
+    public List<PecaAlocada> getTodasPecaAlocadaPorExecucaoServicoId(Long execucaoServicoId) {
+        return pecaAlocadaRepository.findAllByExecucaoServicoId(execucaoServicoId);
+    }
+
+    @Override
+    public List<PecaAlocada> buscarPendentesPorPeca(Long pecaId) {
+        return pecaAlocadaRepository.buscarPendentesPorPecaOrdenado(pecaId);
     }
 }

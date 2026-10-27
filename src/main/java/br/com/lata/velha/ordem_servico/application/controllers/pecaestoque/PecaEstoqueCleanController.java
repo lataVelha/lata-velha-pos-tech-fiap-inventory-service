@@ -5,6 +5,7 @@ import br.com.lata.velha.ordem_servico.application.dtos.request.MovimentarPecaEs
 import br.com.lata.velha.ordem_servico.application.dtos.response.PecaEstoqueResponse;
 import br.com.lata.velha.ordem_servico.application.presenters.pecaestoque.*;
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque.*;
+import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 
 public class PecaEstoqueCleanController {
@@ -21,6 +22,7 @@ public class PecaEstoqueCleanController {
     private final AjustarPecaEstoqueGateway ajustarGateway;
     private final AjustarPecaEstoquePresenter ajustarPresenter;
 
+    private final EventPublisher eventPublisher;
     private final Logger logger;
 
     public PecaEstoqueCleanController(BuscarPecaEstoqueGateway buscarGateway,
@@ -31,6 +33,7 @@ public class PecaEstoqueCleanController {
                                       SaidaPecaEstoquePresenter saidaPresenter,
                                       AjustarPecaEstoqueGateway ajustarGateway,
                                       AjustarPecaEstoquePresenter ajustarPresenter,
+                                      EventPublisher eventPublisher,
                                       Logger logger) {
         this.buscarGateway = buscarGateway;
         this.buscarPresenter = buscarPresenter;
@@ -40,6 +43,7 @@ public class PecaEstoqueCleanController {
         this.saidaPresenter = saidaPresenter;
         this.ajustarGateway = ajustarGateway;
         this.ajustarPresenter = ajustarPresenter;
+        this.eventPublisher = eventPublisher;
         this.logger = logger;
     }
 
@@ -52,7 +56,7 @@ public class PecaEstoqueCleanController {
 
     public PecaEstoqueResponse entrada(Long pecaId, MovimentarPecaEstoqueRequest request) {
         logger.logInfo("Iniciando entrada de estoque de peça - pecaId={}, quantidade={}", pecaId, request.quantidade());
-        var estoque = new EntradaPecaEstoqueUseCase(entradaGateway, logger).execute(pecaId, request);
+        var estoque = new EntradaPecaEstoqueUseCase(entradaGateway, eventPublisher, logger).execute(pecaId, request);
         logger.logInfo("Entrada de estoque de peça concluída com sucesso - pecaId={}", pecaId);
         return entradaPresenter.present(estoque);
     }

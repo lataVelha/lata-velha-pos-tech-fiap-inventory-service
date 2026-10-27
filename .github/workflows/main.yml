@@ -72,6 +72,7 @@ jobs:
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || 'lataVelha/lata-velha-pos-tech-fiap' }}
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'master' }}
+          submodules: true
 
       - name: Configurar Java 21 (Corretto)
         uses: actions/setup-java@v4
@@ -109,6 +110,7 @@ jobs:
         with:
           repository: lataVelha/lata-velha-pos-tech-fiap
           ref: master
+          submodules: true
 
       - name: Autenticar na AWS
         uses: aws-actions/configure-aws-credentials@v4
