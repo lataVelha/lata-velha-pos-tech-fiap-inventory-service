@@ -226,6 +226,18 @@
 							</sources>
 						</configuration>
 					</execution>
+					<execution>
+						<id>add-shared-kernel-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.basedir}/shared-kernel/src/test/java</source>
+							</sources>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 

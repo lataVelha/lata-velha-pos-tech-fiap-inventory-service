@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    key = "lata-velha/deploy/terraform.tfstate"
+    key = "lata-velha/inventory-service/terraform.tfstate"
     # Lock de estado nativo do S3 (sem DynamoDB)
     use_lockfile = true
   }
