@@ -1,5 +1,15 @@
-mail_username = "lata.velha.fiap@gmail.com"
-mail_password = "xxxx xxxx xxxx xxxx"   # Senha de App do Gmail (nao a senha da conta)
+# Copie para terraform.tfvars (não versionado) e preencha.
+# As variáveis cluster_* e docker_image são injetadas automaticamente pelo
+# apply.sh/workflow — não coloque valores reais aqui.
 
-# As variaveis abaixo sao injetadas automaticamente pelo apply.sh — nao coloque aqui:
-# state_bucket, cluster_endpoint, cluster_ca_data, cluster_name, docker_image
+region       = "us-east-1"
+state_bucket = "lata-velha-tfstate-<account-id>"
+cluster_name = "lata-velha-eks"
+node_port    = 30083
+
+# Obrigatórias: o pod entra em CrashLoopBackOff sem SMTP autenticado.
+mail_username = "seu-email@gmail.com"
+mail_password = "sua-app-password"
+
+# Opcional: Datadog OTLP ingest
+dd_api_key = ""

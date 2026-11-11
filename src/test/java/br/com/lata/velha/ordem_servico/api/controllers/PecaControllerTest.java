@@ -146,9 +146,9 @@ class PecaControllerTest {
     }
 
     @Test
-    @DisplayName("GET /pecas sem autenticacao deve retornar 401")
-    void shouldReturn401WhenUnauthenticated() throws Exception {
+    @DisplayName("GET /pecas sem autenticacao deve ser publico (200)")
+    void shouldReturn200WhenUnauthenticated() throws Exception {
         mockMvc.perform(get("/pecas"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 }

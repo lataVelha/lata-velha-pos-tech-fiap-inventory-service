@@ -1,13 +1,13 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: lata-velha-api
-  namespace: lata-velha
+  name: lata-velha-inventory
+  namespace: lata-velha-inventory
   labels:
-    app: lata-velha-api
+    app: lata-velha-inventory
 spec:
   # No drain/upgrade, no máx. 1 pod sai por vez — a API nunca cai inteira
   maxUnavailable: 1
   selector:
     matchLabels:
-      app: lata-velha-api
+      app: lata-velha-inventory

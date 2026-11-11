@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lata-velha-api
-  namespace: lata-velha
+  name: lata-velha-inventory
+  namespace: lata-velha-inventory
   labels:
-    app: lata-velha-api
-    # O app ja usa o OTel Spring Boot Starter (SDK proprio). Sem este label,
+    app: lata-velha-inventory
+    # O serviço usa o OTel Spring Boot Starter (SDK próprio). Sem este label,
     # o Admission Controller do Datadog injetaria o Datadog Java Agent
-    # tambem — dupla instrumentacao (spans duplicados/conflito).
+    # também — dupla instrumentação (spans duplicados/conflito).
     admission.datadoghq.com/enabled: "false"
 spec:
   strategy:
@@ -17,12 +17,14 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: lata-velha-api
+      app: lata-velha-inventory
   template:
     metadata:
       labels:
-        app: lata-velha-api
+        app: lata-velha-inventory
+        admission.datadoghq.com/enabled: "false"
     spec:
+      serviceAccountName: lata-velha-inventory
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -35,7 +37,7 @@ spec:
               podAffinityTerm:
                 labelSelector:
                   matchLabels:
-                    app: lata-velha-api
+                    app: lata-velha-inventory
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: api
@@ -50,9 +52,9 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: lata-velha-config
+                name: lata-velha-inventory-config
             - secretRef:
-                name: lata-velha-db-secret
+                name: lata-velha-inventory-secret
           env:
             - name: HOST_IP
               valueFrom:

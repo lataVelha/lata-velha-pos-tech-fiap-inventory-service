@@ -21,6 +21,12 @@ variable "lambda_state_key" {
   default     = "lata-velha/lambda-auth-cpf/terraform.tfstate"
 }
 
+variable "messaging_state_key" {
+  description = "Chave do state do infra messaging, de onde vêm o topic ARN e a fila deste serviço"
+  type        = string
+  default     = "lata-velha/infra-messaging/terraform.tfstate"
+}
+
 # Conexao com o EKS (provisionado pelo repo infra) — lidas via AWS CLI no
 # pipeline/apply.sh e passadas como TF_VAR_, ja que provider config nao usa
 # data sources para a propria inicializacao.
@@ -38,6 +44,12 @@ variable "cluster_ca_data" {
 variable "cluster_name" {
   description = "Nome do EKS cluster"
   type        = string
+}
+
+variable "node_port" {
+  description = "NodePort do Service do inventory-service (app usa 30080, os 30082, billing 30081)"
+  type        = number
+  default     = 30083
 }
 
 variable "docker_image" {
@@ -72,4 +84,10 @@ variable "dd_api_key" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "service_version" {
+  description = "SHA/tag da imagem — vira a tag service.version nos spans"
+  type        = string
+  default     = "0.0.1"
 }

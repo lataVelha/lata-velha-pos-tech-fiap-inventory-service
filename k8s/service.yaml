@@ -1,18 +1,20 @@
-# NodePort (30080) — destino do tráfego encaminhado pelo ALB.
+# NodePort configurável (default 30082) — destino do tráfego encaminhado pelo
+# ALB/NLB interno do os-service. O valor é injetado pelo Terraform via
+# templatefile (variable "node_port").
 apiVersion: v1
 kind: Service
 metadata:
-  name: lata-velha-api
-  namespace: lata-velha
+  name: lata-velha-inventory
+  namespace: lata-velha-inventory
   labels:
-    app: lata-velha-api
+    app: lata-velha-inventory
 spec:
   selector:
-    app: lata-velha-api
+    app: lata-velha-inventory
   ports:
     - name: http
       port: 80
       targetPort: 8080
-      nodePort: 30080
+      nodePort: ${node_port}
       protocol: TCP
   type: NodePort

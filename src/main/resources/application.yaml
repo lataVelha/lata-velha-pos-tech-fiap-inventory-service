@@ -97,6 +97,17 @@ thymeleaf:
   mode: HTML
   encoding: UTF-8
 
+messaging:
+  provider: ${MESSAGING_PROVIDER:rabbitmq}
+  rabbitmq:
+    exchange: ${RABBITMQ_EXCHANGE:lata-velha.events}
+    queue: ${RABBITMQ_QUEUE:lata-velha-inventory-service.events}
+  sqs:
+    region: ${MESSAGING_SQS_REGION:us-east-1}
+    topic-arn: ${MESSAGING_SQS_TOPIC_ARN:}
+    queue-url: ${MESSAGING_SQS_QUEUE_URL:}
+    wait-time-seconds: ${MESSAGING_SQS_WAIT_TIME_SECONDS:20}
+
 otel:
   service:
     name: ${OTEL_SERVICE_NAME:${spring.application.name}}

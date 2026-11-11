@@ -3,6 +3,26 @@ variable "docker_image" {
   type        = string
 }
 
+variable "node_port" {
+  description = "NodePort exposto pelo Service do servico"
+  type        = number
+}
+
+variable "messaging_topic_arn" {
+  description = "ARN do topico SNS de eventos de dominio"
+  type        = string
+}
+
+variable "messaging_queue_url" {
+  description = "URL da fila SQS consumida por este servico"
+  type        = string
+}
+
+variable "service_version" {
+  description = "SHA/tag da imagem — vira a tag service.version nos spans"
+  type        = string
+}
+
 variable "db_url" {
   description = "JDBC URL do banco de dados"
   type        = string

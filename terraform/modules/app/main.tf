@@ -6,8 +6,17 @@ resource "kubectl_manifest" "namespace" {
   yaml_body = file("${local.k8s_dir}/namespace.yaml")
 }
 
+resource "kubectl_manifest" "serviceaccount" {
+  yaml_body  = file("${local.k8s_dir}/serviceaccount.yaml")
+  depends_on = [kubectl_manifest.namespace]
+}
+
 resource "kubectl_manifest" "configmap" {
-  yaml_body  = file("${local.k8s_dir}/configmap.yaml")
+  yaml_body = templatefile("${local.k8s_dir}/configmap.yaml", {
+    messaging_topic_arn = var.messaging_topic_arn
+    messaging_queue_url = var.messaging_queue_url
+    service_version     = var.service_version
+  })
   depends_on = [kubectl_manifest.namespace]
 }
 
@@ -29,13 +38,16 @@ resource "kubectl_manifest" "deployment" {
     docker_image = var.docker_image
   })
   depends_on = [
+    kubectl_manifest.serviceaccount,
     kubectl_manifest.configmap,
     kubectl_manifest.secret_db,
   ]
 }
 
 resource "kubectl_manifest" "service" {
-  yaml_body  = file("${local.k8s_dir}/service.yaml")
+  yaml_body = templatefile("${local.k8s_dir}/service.yaml", {
+    node_port = var.node_port
+  })
   depends_on = [kubectl_manifest.deployment]
 }
 
