@@ -27,6 +27,6 @@ public final class OrcamentoAprovadoEvent extends AbstractDomainEvent {
         return itens;
     }
 
-    public record Item(Long execucaoServicoId, Long pecaId, Integer quantidade) {
+    public record Item(Long execucaoServicoId, String pecaId, Integer quantidade) {
     }
 }

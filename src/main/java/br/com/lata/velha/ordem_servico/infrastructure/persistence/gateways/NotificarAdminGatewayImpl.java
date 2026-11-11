@@ -29,7 +29,7 @@ public class NotificarAdminGatewayImpl implements NotificarAdminEncomendaPecaGat
     private String adminEmailsConfig;
 
     @Override
-    public Optional<Peca> findPecaPorId(Long id) {
+    public Optional<Peca> findPecaPorId(String id) {
         try {
             return Optional.of(pecaRepository.getActiveById(id));
         } catch (Exception e) {

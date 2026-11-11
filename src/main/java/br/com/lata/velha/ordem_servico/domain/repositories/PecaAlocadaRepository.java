@@ -11,15 +11,15 @@ public interface PecaAlocadaRepository {
 
     List<PecaAlocada> saveAll(List<PecaAlocada> pecasAlocadas);
 
-    PecaAlocada findById(Long id);
+    PecaAlocada findById(String id);
 
     PaginatedResult<PecaAlocada> findByServicoOsId(Long servicoOsId, int page, int size);
 
-    void delete(Long id);
+    void delete(String id);
 
-    List<PecaAlocada> buscarPendentesPorPecaOrdenado(Long pecaId);
+    List<PecaAlocada> buscarPendentesPorPecaOrdenado(String pecaId);
 
-    PecaAlocada findByPecaIdAndServicoOsId(Long pecaId, Long servicoOsId);
+    PecaAlocada findByPecaIdAndServicoOsId(String pecaId, Long servicoOsId);
 
     List<PecaAlocada> findAllByExecucaoServicoId(Long execucaoServicoId);
 }

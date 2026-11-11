@@ -54,7 +54,7 @@ class PecaControllerTest {
     private Logger logger;
 
     private PecaResponse buildResponse() {
-        return new PecaResponse(1L, "Pastilha de Freio", "Pastilha traseira", new BigDecimal("45.90"), true);
+        return new PecaResponse("1", "Pastilha de Freio", "Pastilha traseira", new BigDecimal("45.90"), true);
     }
 
     private CadastrarPecaRequest buildRequest() {
@@ -104,7 +104,7 @@ class PecaControllerTest {
     @WithMockUser(roles = "USER")
     @DisplayName("GET /pecas/{id} deve retornar 200 com a peca")
     void shouldReturn200OnFindById() throws Exception {
-        when(cleanController.buscarPorId(1L)).thenReturn(buildResponse());
+        when(cleanController.buscarPorId("1")).thenReturn(buildResponse());
         mockMvc.perform(get("/pecas/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
@@ -116,8 +116,8 @@ class PecaControllerTest {
     @DisplayName("PUT /pecas/{id} deve retornar 200 com a peca atualizada")
     void shouldReturn200OnUpdate() throws Exception {
         var request = new AtualizarPecaRequest("Pastilha Dianteira", "Pastilha dianteira premium", new BigDecimal("65.00"));
-        var updated = new PecaResponse(1L, "Pastilha Dianteira", "Pastilha dianteira premium", new BigDecimal("65.00"), true);
-        when(cleanController.atualizar(eq(1L), any())).thenReturn(updated);
+        var updated = new PecaResponse("1", "Pastilha Dianteira", "Pastilha dianteira premium", new BigDecimal("65.00"), true);
+        when(cleanController.atualizar(eq("1"), any())).thenReturn(updated);
         mockMvc.perform(put("/pecas/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -140,7 +140,7 @@ class PecaControllerTest {
     @WithMockUser(roles = "USER")
     @DisplayName("PATCH /pecas/{id}/desativar deve retornar 204")
     void shouldReturn204OnDesativar() throws Exception {
-        doNothing().when(cleanController).desativar(1L);
+        doNothing().when(cleanController).desativar("1");
         mockMvc.perform(patch("/pecas/1/desativar"))
                 .andExpect(status().isNoContent());
     }

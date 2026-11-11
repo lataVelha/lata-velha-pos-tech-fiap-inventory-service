@@ -16,7 +16,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class PecaEstoqueRepositoryImpl implements PecaEstoqueRepository {
 
-    private final PecaEstoqueJpaRepository jpaRepository;
+    private final PecaEstoqueMongoRepository jpaRepository;
     private final Logger logger;
 
     @Override
@@ -34,18 +34,18 @@ public class PecaEstoqueRepositoryImpl implements PecaEstoqueRepository {
     }
 
     @Override
-    public Optional<PecaEstoque> findByPecaId(Long pecaId) {
+    public Optional<PecaEstoque> findByPecaId(String pecaId) {
         return jpaRepository.findById(pecaId)
                 .map(PecaEstoqueEntity::toDomain);
     }
 
     @Override
-    public void baixarEstoque(Long pecaId, Integer quantidade) {
+    public void baixarEstoque(String pecaId, Integer quantidade) {
         jpaRepository.baixarEstoque(pecaId, quantidade);
     }
 
     @Override
-    public List<PecaEstoque> findAllByPecaIds(Set<Long> pecaIds) {
+    public List<PecaEstoque> findAllByPecaIds(Set<String> pecaIds) {
         return jpaRepository.findAllByPecaIdIn(pecaIds).stream()
                 .map(PecaEstoqueEntity::toDomain)
                 .toList();

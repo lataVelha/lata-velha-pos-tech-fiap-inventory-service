@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 class PecaRepositoryImplTest {
 
     @Mock
-    private PecaJpaRepository jpaRepository;
+    private PecaMongoRepository jpaRepository;
 
     @Mock
     private Logger logger;
@@ -36,12 +36,12 @@ class PecaRepositoryImplTest {
     private PecaRepositoryImpl repository;
 
     private Peca domainPeca() {
-        return new Peca(1L, "Filtro de óleo", "Filtro", new BigDecimal("50.00"));
+        return new Peca("1", "Filtro de óleo", "Filtro", new BigDecimal("50.00"));
     }
 
     private PecaEntity entityPeca() {
         var e = new PecaEntity();
-        e.setId(1L);
+        e.setId("1");
         e.setNome("Filtro de óleo");
         e.setDescricao("Filtro");
         e.setValor(new BigDecimal("50.00"));
@@ -75,9 +75,9 @@ class PecaRepositoryImplTest {
         @DisplayName("deve retornar domínio quando encontrado")
         void deveRetornarQuandoEncontrado() {
             PecaEntity entity = entityPeca();
-            when(jpaRepository.findByIdAndAtivoTrue(1L)).thenReturn(Optional.of(entity));
+            when(jpaRepository.findByIdAndAtivoTrue("1")).thenReturn(Optional.of(entity));
 
-            Peca result = repository.getActiveById(1L);
+            Peca result = repository.getActiveById("1");
 
             assertThat(result.getId()).isEqualTo(1L);
         }
@@ -85,9 +85,9 @@ class PecaRepositoryImplTest {
         @Test
         @DisplayName("deve lançar IllegalArgumentException quando não encontrado")
         void deveLancarExcecaoQuandoNaoEncontrado() {
-            when(jpaRepository.findByIdAndAtivoTrue(99L)).thenReturn(Optional.empty());
+            when(jpaRepository.findByIdAndAtivoTrue("99")).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> repository.getActiveById(99L))
+            assertThatThrownBy(() -> repository.getActiveById("99"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Peça não encontrada");
         }
@@ -132,17 +132,17 @@ class PecaRepositoryImplTest {
         @Test
         @DisplayName("deve retornar true quando peça ativa existe")
         void deveRetornarTrueQuandoExiste() {
-            when(jpaRepository.existsByIdAndAtivoTrue(1L)).thenReturn(true);
+            when(jpaRepository.existsByIdAndAtivoTrue("1")).thenReturn(true);
 
-            assertThat(repository.existsActiveById(1L)).isTrue();
+            assertThat(repository.existsActiveById("1")).isTrue();
         }
 
         @Test
         @DisplayName("deve retornar false quando peça não existe ou está inativa")
         void deveRetornarFalseQuandoNaoExiste() {
-            when(jpaRepository.existsByIdAndAtivoTrue(99L)).thenReturn(false);
+            when(jpaRepository.existsByIdAndAtivoTrue("99")).thenReturn(false);
 
-            assertThat(repository.existsActiveById(99L)).isFalse();
+            assertThat(repository.existsActiveById("99")).isFalse();
         }
     }
 }

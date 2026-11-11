@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class PecaAlocadaRepositoryImplTest {
 
     @Mock
-    private PecaAlocadaJpaRepository jpaRepository;
+    private PecaAlocadaMongoRepository jpaRepository;
 
     @Mock
     private Logger logger;
@@ -37,11 +37,11 @@ class PecaAlocadaRepositoryImplTest {
     private PecaAlocadaRepositoryImpl repository;
 
     private PecaAlocada domainPeca() {
-        return new PecaAlocada(1L, 10L, 99L, new BigDecimal("10.00"), 3, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
+        return new PecaAlocada("1", "10", 99L, new BigDecimal("10.00"), 3, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
     }
 
     private PecaAlocadaEntity entityPeca() {
-        return new PecaAlocadaEntity(1L, 10L, 99L, new BigDecimal("10.00"), 3, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
+        return new PecaAlocadaEntity("1", "10", 99L, new BigDecimal("10.00"), 3, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
     }
 
     @Nested
@@ -72,9 +72,9 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve retornar domínio quando encontrado")
         void deveRetornarQuandoEncontrado() {
-            when(jpaRepository.findById(1L)).thenReturn(Optional.of(entityPeca()));
+            when(jpaRepository.findById("1")).thenReturn(Optional.of(entityPeca()));
 
-            PecaAlocada result = repository.findById(1L);
+            PecaAlocada result = repository.findById("1");
 
             assertThat(result.getId()).isEqualTo(1L);
         }
@@ -82,9 +82,9 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve lançar IllegalArgumentException quando não encontrado")
         void deveLancarExcecaoQuandoNaoEncontrado() {
-            when(jpaRepository.findById(99L)).thenReturn(Optional.empty());
+            when(jpaRepository.findById("99")).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> repository.findById(99L))
+            assertThatThrownBy(() -> repository.findById("99"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Peça alocada não encontrada");
         }
@@ -129,9 +129,9 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve chamar deleteById no JPA repository")
         void deveChamarDeleteById() {
-            repository.delete(1L);
+            repository.delete("1");
 
-            verify(jpaRepository).deleteById(1L);
+            verify(jpaRepository).deleteById("1");
         }
     }
 
@@ -142,10 +142,10 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve retornar lista de peças pendentes")
         void deveRetornarPecasPendentes() {
-            var entity = new PecaAlocadaEntity(2L, 10L, 99L, new BigDecimal("10.00"), 5, 2, 3, 0, StatusPecaAlocada.PARCIAL, LocalDateTime.now());
-            when(jpaRepository.buscarPendentesPorPecaOrdenado(10L)).thenReturn(List.of(entity));
+            var entity = new PecaAlocadaEntity("1", "10", 99L, new BigDecimal("10.00"), 5, 2, 3, 0, StatusPecaAlocada.PARCIAL, LocalDateTime.now());
+            when(jpaRepository.buscarPendentesPorPecaOrdenado("10")).thenReturn(List.of(entity));
 
-            List<PecaAlocada> result = repository.buscarPendentesPorPecaOrdenado(10L);
+            List<PecaAlocada> result = repository.buscarPendentesPorPecaOrdenado("10");
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getStatus()).isEqualTo(StatusPecaAlocada.PARCIAL);
@@ -154,9 +154,9 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve retornar lista vazia quando não há pendentes")
         void deveRetornarListaVaziaQuandoNaoHaPendentes() {
-            when(jpaRepository.buscarPendentesPorPecaOrdenado(10L)).thenReturn(List.of());
+            when(jpaRepository.buscarPendentesPorPecaOrdenado("10")).thenReturn(List.of());
 
-            List<PecaAlocada> result = repository.buscarPendentesPorPecaOrdenado(10L);
+            List<PecaAlocada> result = repository.buscarPendentesPorPecaOrdenado("10");
 
             assertThat(result).isEmpty();
         }
@@ -169,10 +169,10 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve retornar domínio quando encontrado")
         void deveRetornarQuandoEncontrado() {
-            when(jpaRepository.findByPecaIdAndExecucaoServicoId(10L, 99L))
+            when(jpaRepository.findByPecaIdAndExecucaoServicoId("10", 99L))
                     .thenReturn(Optional.of(entityPeca()));
 
-            PecaAlocada result = repository.findByPecaIdAndServicoOsId(10L, 99L);
+            PecaAlocada result = repository.findByPecaIdAndServicoOsId("10", 99L);
 
             assertThat(result.getPecaId()).isEqualTo(10L);
             assertThat(result.getExecucaoServicoId()).isEqualTo(99L);
@@ -181,10 +181,10 @@ class PecaAlocadaRepositoryImplTest {
         @Test
         @DisplayName("deve lançar IllegalArgumentException quando não encontrado")
         void deveLancarExcecaoQuandoNaoEncontrado() {
-            when(jpaRepository.findByPecaIdAndExecucaoServicoId(10L, 99L))
+            when(jpaRepository.findByPecaIdAndExecucaoServicoId("10", 99L))
                     .thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> repository.findByPecaIdAndServicoOsId(10L, 99L))
+            assertThatThrownBy(() -> repository.findByPecaIdAndServicoOsId("10", 99L))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Peça alocada não encontrada");
         }

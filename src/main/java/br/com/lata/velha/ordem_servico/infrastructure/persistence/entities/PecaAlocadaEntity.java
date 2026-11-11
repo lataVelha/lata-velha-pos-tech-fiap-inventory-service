@@ -2,51 +2,50 @@ package br.com.lata.velha.ordem_servico.infrastructure.persistence.entities;
 
 import br.com.lata.velha.ordem_servico.domain.entities.PecaAlocada;
 import br.com.lata.velha.ordem_servico.domain.enums.StatusPecaAlocada;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-@Entity
-@Table(name = "PECA_ALOCADA")
+
+@Document(collection = "PECA_ALOCADA")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PecaAlocadaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private Long id;
+    private String id;
 
-    @Column(name  = "PECA_ID", nullable = false)
-    private Long pecaId;
+    @Field(name = "PECA_ID")
+    private String pecaId;
 
-    @Column(name = "EXECUCAO_SERVICO_ID", nullable = false)
+    @Field(name = "EXECUCAO_SERVICO_ID")
     private Long execucaoServicoId;
 
-    @Column(name = "VALOR_UNITARIO", nullable = false)
+    @Field(name = "VALOR_UNITARIO")
     private BigDecimal valorUnitario;
 
-    @Column(name = "QTD_SOLICITADA", nullable = false)
+    @Field(name = "QTD_SOLICITADA")
     private Integer quantidadeSolicitada;
 
-    @Column(name = "QTD_RESERVADA", nullable = false)
+    @Field(name = "QTD_RESERVADA")
     private Integer quantidadeReservada = 0;
 
-    @Column(name = "QTD_ENCOMENDADA", nullable = false)
+    @Field(name = "QTD_ENCOMENDADA")
     private Integer quantidadeEncomendada = 0;
 
-    @Column(name = "QTD_INSTALADA", nullable = false)
+    @Field(name = "QTD_INSTALADA")
     private Integer quantidadeInstalada = 0;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "STATUS", length = 30, nullable = false)
+    @Field(name = "STATUS")
     private StatusPecaAlocada status;
 
-    @Column(name = "ATUALIZADO_EM")
+    @Field(name = "ATUALIZADO_EM")
     private LocalDateTime atualizado;
 
     public static PecaAlocadaEntity fromDomain(PecaAlocada domain) {

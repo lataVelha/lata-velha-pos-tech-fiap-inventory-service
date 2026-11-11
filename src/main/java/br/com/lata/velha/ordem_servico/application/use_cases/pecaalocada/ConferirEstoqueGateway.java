@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface ConferirEstoqueGateway {
-    PecaAlocada getOuCriarPecaAlocada(Long execucaoServicoId, Long pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca);
-    List<PecaEstoque> getEstoquePorPecaIds(Set<Long> pecaIds);
+    PecaAlocada getOuCriarPecaAlocada(Long execucaoServicoId, String pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca);
+    List<PecaEstoque> getEstoquePorPecaIds(Set<String> pecaIds);
     void salvarEstoques(Collection<PecaEstoque> estoques);
     PecaAlocada salvarPecaAlocada(PecaAlocada pecaAlocada);
 }

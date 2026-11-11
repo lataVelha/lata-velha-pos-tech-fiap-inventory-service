@@ -40,6 +40,6 @@ public class DeduzirEstoqueExecucaoUseCase {
     }
 
     public record Input(Long execucaoServicoId, List<Item> itens) {
-        public record Item(Long pecaId, Integer quantidade) {}
+        public record Item(String pecaId, Integer quantidade) {}
     }
 }

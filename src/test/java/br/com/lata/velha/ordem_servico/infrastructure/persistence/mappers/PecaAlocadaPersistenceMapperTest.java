@@ -34,7 +34,7 @@ class PecaAlocadaPersistenceMapperTest {
     void toDomain_deveMapearEntityParaDomainCorretamente() {
         var now = LocalDateTime.now();
         var entity = new PecaAlocadaEntity(
-                10L, 5L, 1L, new BigDecimal("49.90"),
+                "10", "5", 1L, new BigDecimal("49.90"),
                 4, 2, 2, 0,
                 StatusPecaAlocada.PARCIAL, now
         );
@@ -57,7 +57,7 @@ class PecaAlocadaPersistenceMapperTest {
     @DisplayName("toDomain deve mapear status INSTALADA corretamente")
     void toDomain_deveMapearStatusInstalada() {
         var entity = new PecaAlocadaEntity(
-                20L, 3L, 2L, new BigDecimal("30.00"),
+                "10", "5", 2L, new BigDecimal("30.00"),
                 2, 2, 0, 2,
                 StatusPecaAlocada.INSTALADA, null
         );
@@ -81,7 +81,7 @@ class PecaAlocadaPersistenceMapperTest {
     void toEntity_deveMapearDomainParaEntityCorretamente() {
         var now = LocalDateTime.now();
         var domain = new PecaAlocada(
-                10L, 5L, 1L, new BigDecimal("49.90"),
+                "10", "5", 1L, new BigDecimal("49.90"),
                 4, 2, 2, 0,
                 StatusPecaAlocada.PARCIAL, now
         );
@@ -103,7 +103,7 @@ class PecaAlocadaPersistenceMapperTest {
     @DisplayName("roundTrip domain→entity→domain deve preservar dados")
     void roundTrip_devePreservarDados() {
         var original = new PecaAlocada(
-                15L, 7L, 3L, new BigDecimal("25.00"),
+                "10", "5", 3L, new BigDecimal("25.00"),
                 3, 1, 2, 0,
                 StatusPecaAlocada.ENCOMENDA, LocalDateTime.now()
         );

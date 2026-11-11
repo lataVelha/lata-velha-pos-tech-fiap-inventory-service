@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class PecaRepositoryImpl implements PecaRepository {
-    private final PecaJpaRepository jpaRepository;
+    private final PecaMongoRepository jpaRepository;
     private final Logger logger;
 
     @Override
@@ -27,7 +27,7 @@ public class PecaRepositoryImpl implements PecaRepository {
     }
 
     @Override
-    public Peca getActiveById(Long id) {
+    public Peca getActiveById(String id) {
         return jpaRepository.findByIdAndAtivoTrue(id)
                 .map(PecaEntity::toDomain)
                 .orElseThrow(() -> {
@@ -51,12 +51,12 @@ public class PecaRepositoryImpl implements PecaRepository {
     }
 
     @Override
-    public boolean existsActiveById(Long pecaId) {
+    public boolean existsActiveById(String pecaId) {
         return jpaRepository.existsByIdAndAtivoTrue(pecaId);
     }
 
     @Override
-    public Set<Peca> getAllActiveByIds(Set<Long> pecasIds) {
+    public Set<Peca> getAllActiveByIds(Set<String> pecasIds) {
         return jpaRepository.getAllByIdInAndAtivoTrue(pecasIds)
                 .stream()
                 .map(PecaEntity::toDomain)
@@ -64,7 +64,7 @@ public class PecaRepositoryImpl implements PecaRepository {
     }
 
     @Override
-    public List<Peca> findAllByIds(Set<Long> ids) {
+    public List<Peca> findAllByIds(Set<String> ids) {
         return jpaRepository.findAllByIdIn(ids).stream()
                 .map(PecaEntity::toDomain)
                 .toList();

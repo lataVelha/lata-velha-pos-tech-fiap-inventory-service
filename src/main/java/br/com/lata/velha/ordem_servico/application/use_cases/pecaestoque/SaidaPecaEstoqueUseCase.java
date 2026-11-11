@@ -14,7 +14,7 @@ public class SaidaPecaEstoqueUseCase {
         this.logger = logger;
     }
 
-    public PecaEstoque execute(Long pecaId, MovimentarPecaEstoqueRequest request) {
+    public PecaEstoque execute(String pecaId, MovimentarPecaEstoqueRequest request) {
         logger.logInfo("Registrando saída de estoque - pecaId={}, quantidade={}", pecaId, request.quantidade());
         gateway.getPecaAtivaPorId(pecaId);
         var estoque = gateway.getEstoquePorPecaId(pecaId);

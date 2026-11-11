@@ -7,10 +7,10 @@ import br.com.lata.velha.ordem_servico.domain.entities.PecaEstoque;
 import java.util.List;
 
 public interface EntradaPecaEstoqueGateway {
-    Peca getPecaAtivaPorId(Long pecaId);
-    PecaEstoque getEstoquePorPecaId(Long pecaId);
+    Peca getPecaAtivaPorId(String pecaId);
+    PecaEstoque getEstoquePorPecaId(String pecaId);
     PecaEstoque salvarEstoque(PecaEstoque estoque);
-    List<PecaAlocada> buscarPendentesPorPeca(Long pecaId);
+    List<PecaAlocada> buscarPendentesPorPeca(String pecaId);
     PecaAlocada salvarPecaAlocada(PecaAlocada pecaAlocada);
     List<PecaAlocada> getTodasPecaAlocadaPorExecucaoServicoId(Long execucaoServicoId);
 }

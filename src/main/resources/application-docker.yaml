@@ -2,10 +2,10 @@ spring:
   application:
     name: lata-velha-inventory-api
 
-  datasource:
-    url: jdbc:postgresql://postgres:5432/lata_velha_inventory
-    username: admin
-    password: admin123
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@mongodb:27017/lata_velha_inventory?authSource=admin
+
 
 logging:
   level:

@@ -13,7 +13,7 @@ public class BuscarPecaPorIdUseCase {
         this.logger = logger;
     }
 
-    public Peca execute(Long id) {
+    public Peca execute(String id) {
         logger.logInfo("Buscando peça por id - pecaId={}", id);
         return gateway.getPecaAtivaPorId(id);
     }

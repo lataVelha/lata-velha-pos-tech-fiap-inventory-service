@@ -2,22 +2,22 @@ package br.com.lata.velha.ordem_servico.domain.entities;
 
 public final class PecaEstoque {
 
-    private final Long pecaId;
+    private final String pecaId;
     private Integer quantidadeArmazenada;
     private Integer quantidadeDisponivel;
 
-    public PecaEstoque(Long pecaId, Integer quantidadeArmazenada, Integer quantidadeDisponivel) {
+    public PecaEstoque(String pecaId, Integer quantidadeArmazenada, Integer quantidadeDisponivel) {
         validatePecaId(pecaId);
         this.pecaId = pecaId;
         setQuantidadeArmazenada(quantidadeArmazenada);
         setQuantidadeDisponivel(quantidadeDisponivel);
     }
 
-    public static PecaEstoque create(Long pecaId) {
+    public static PecaEstoque create(String pecaId) {
         return new PecaEstoque(pecaId, 0, 0);
     }
 
-    public Long getPecaId() {
+    public String getPecaId() {
         return pecaId;
     }
 
@@ -63,8 +63,8 @@ public final class PecaEstoque {
                 ", quantidade=" + quantidadeArmazenada + '}';
     }
 
-    private void validatePecaId(Long pecaId) {
-        if (pecaId == null || pecaId <= 0)
+    private void validatePecaId(String pecaId) {
+        if (pecaId == null || pecaId.isBlank())
             throw new IllegalArgumentException("ID da peça inválido");
     }
 

@@ -28,7 +28,7 @@ public class PecaEstoqueController {
     @Operation(summary = "Consultar estoque da peça", description = "Retorna quantidade armazenada e disponível (descontando reservas de OS ativas).")
     @ApiResponse(responseCode = "200", description = "Estoque consultado com sucesso")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada ou estoque ainda não inicializado")
-    public ResponseEntity<PecaEstoqueResponse> buscar(@PathVariable Long pecaId) {
+    public ResponseEntity<PecaEstoqueResponse> buscar(@PathVariable String pecaId) {
         return ResponseEntity.ok(cleanController.buscar(pecaId));
     }
 
@@ -39,7 +39,7 @@ public class PecaEstoqueController {
     @ApiResponse(responseCode = "400", description = "Quantidade inválida (deve ser maior que zero)")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
     public ResponseEntity<PecaEstoqueResponse> entrada(
-            @PathVariable Long pecaId,
+            @PathVariable String pecaId,
             @Valid @RequestBody MovimentarPecaEstoqueRequest request) {
         return ResponseEntity.ok(cleanController.entrada(pecaId, request));
     }
@@ -51,7 +51,7 @@ public class PecaEstoqueController {
     @ApiResponse(responseCode = "400", description = "Quantidade inválida ou saldo insuficiente para a saída solicitada")
     @ApiResponse(responseCode = "404", description = "Peça ou estoque não encontrado")
     public ResponseEntity<PecaEstoqueResponse> saida(
-            @PathVariable Long pecaId,
+            @PathVariable String pecaId,
             @Valid @RequestBody MovimentarPecaEstoqueRequest request) {
         return ResponseEntity.ok(cleanController.saida(pecaId, request));
     }
@@ -63,7 +63,7 @@ public class PecaEstoqueController {
     @ApiResponse(responseCode = "400", description = "Valor de ajuste inválido (não pode ser negativo)")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
     public ResponseEntity<PecaEstoqueResponse> ajustar(
-            @PathVariable Long pecaId,
+            @PathVariable String pecaId,
             @Valid @RequestBody AjustarPecaEstoqueRequest request) {
         return ResponseEntity.ok(cleanController.ajustar(pecaId, request));
     }

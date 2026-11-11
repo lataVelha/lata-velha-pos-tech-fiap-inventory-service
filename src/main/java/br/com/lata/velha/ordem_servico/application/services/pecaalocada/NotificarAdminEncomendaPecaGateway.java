@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NotificarAdminEncomendaPecaGateway {
-    Optional<Peca> findPecaPorId(Long id);
+    Optional<Peca> findPecaPorId(String id);
 
     // TODO: Inventory não tem dados de Funcionario/User — hoje lê uma lista estática de
     // e-mails via config (notificacoes.admin-emails). Um lookup real de admins por cargo

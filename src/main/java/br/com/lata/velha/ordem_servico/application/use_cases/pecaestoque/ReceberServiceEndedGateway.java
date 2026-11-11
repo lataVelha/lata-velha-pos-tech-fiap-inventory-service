@@ -5,6 +5,6 @@ import br.com.lata.velha.ordem_servico.domain.entities.PecaAlocada;
 import java.util.Optional;
 
 public interface ReceberServiceEndedGateway {
-    Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, Long pecaId);
+    Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, String pecaId);
     PecaAlocada salvarPecaAlocada(PecaAlocada pecaAlocada);
 }

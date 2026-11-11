@@ -5,23 +5,23 @@ import java.util.Objects;
 
 public class Peca {
 
-    private Long id;
+    private String id;
     private String nome;
     private String descricao;
     private BigDecimal valor;
     private boolean ativo = true;
 
-    public Peca(Long id, String nome, String descricao, BigDecimal valor) {
+    public Peca(String id, String nome, String descricao, BigDecimal valor) {
         this(id, nome, descricao, valor, true);
     }
 
-    public Peca(Long id, String nome, String descricao, BigDecimal valor, boolean ativo) {
+    public Peca(String id, String nome, String descricao, BigDecimal valor, boolean ativo) {
         this.id = id;
         atualizar(nome, descricao, valor);
         this.ativo = ativo;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

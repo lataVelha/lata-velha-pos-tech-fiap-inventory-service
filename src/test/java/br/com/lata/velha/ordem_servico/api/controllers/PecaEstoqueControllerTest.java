@@ -49,14 +49,14 @@ class PecaEstoqueControllerTest {
     private Logger logger;
 
     private PecaEstoqueResponse buildResponse(int quantidade) {
-        return new PecaEstoqueResponse(1L, quantidade, quantidade);
+        return new PecaEstoqueResponse("1", quantidade, quantidade);
     }
 
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /pecas/{pecaId}/estoque deve retornar 200 com o estoque")
     void shouldReturn200OnBuscarEstoque() throws Exception {
-        when(cleanController.buscar(1L)).thenReturn(buildResponse(50));
+        when(cleanController.buscar("1")).thenReturn(buildResponse(50));
         mockMvc.perform(get("/pecas/1/estoque"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pecaId").value(1L))
@@ -68,7 +68,7 @@ class PecaEstoqueControllerTest {
     @DisplayName("POST /pecas/{pecaId}/estoque/entrada deve retornar 200 com estoque atualizado")
     void shouldReturn200OnEntrada() throws Exception {
         var request = new MovimentarPecaEstoqueRequest(10);
-        when(cleanController.entrada(eq(1L), any())).thenReturn(buildResponse(60));
+        when(cleanController.entrada(eq("1"), any())).thenReturn(buildResponse(60));
         mockMvc.perform(post("/pecas/1/estoque/entrada")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -81,7 +81,7 @@ class PecaEstoqueControllerTest {
     @DisplayName("POST /pecas/{pecaId}/estoque/saida deve retornar 200 com estoque atualizado")
     void shouldReturn200OnSaida() throws Exception {
         var request = new MovimentarPecaEstoqueRequest(5);
-        when(cleanController.saida(eq(1L), any())).thenReturn(buildResponse(45));
+        when(cleanController.saida(eq("1"), any())).thenReturn(buildResponse(45));
         mockMvc.perform(post("/pecas/1/estoque/saida")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -94,7 +94,7 @@ class PecaEstoqueControllerTest {
     @DisplayName("PATCH /pecas/{pecaId}/estoque/ajuste deve retornar 200 com estoque ajustado")
     void shouldReturn200OnAjuste() throws Exception {
         var request = new AjustarPecaEstoqueRequest(100, 100);
-        when(cleanController.ajustar(eq(1L), any())).thenReturn(buildResponse(100));
+        when(cleanController.ajustar(eq("1"), any())).thenReturn(buildResponse(100));
         mockMvc.perform(patch("/pecas/1/estoque/ajuste")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

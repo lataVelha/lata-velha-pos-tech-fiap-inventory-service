@@ -45,7 +45,7 @@ public class PecaController {
     @Operation(summary = "Buscar peça por ID")
     @ApiResponse(responseCode = "200", description = "Peça encontrada")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
-    public ResponseEntity<PecaResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PecaResponse> buscarPorId(@PathVariable String id) {
         return ResponseEntity.ok(cleanController.buscarPorId(id));
     }
 
@@ -55,7 +55,7 @@ public class PecaController {
     @ApiResponse(responseCode = "200", description = "Peça atualizada")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
     public ResponseEntity<PecaResponse> atualizar(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @RequestBody AtualizarPecaRequest request) {
         return ResponseEntity.ok(cleanController.atualizar(id, request));
     }
@@ -65,7 +65,7 @@ public class PecaController {
     @Operation(summary = "Desativar peça (Soft Delete)", description = "Inativa a peça do catálogo. Peças desativadas não podem ser adicionadas a novos serviços, mas OS existentes que já utilizam a peça não são afetadas.")
     @ApiResponse(responseCode = "204", description = "Peça desativada")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
-    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+    public ResponseEntity<Void> desativar(@PathVariable String id) {
         cleanController.desativar(id);
         return ResponseEntity.noContent().build();
     }

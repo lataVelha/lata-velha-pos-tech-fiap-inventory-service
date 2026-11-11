@@ -32,7 +32,7 @@ public class PecaAlocadaCleanController {
         this.logger = logger;
     }
 
-    public PecaAlocadaResponse buscarPorId(Long id) {
+    public PecaAlocadaResponse buscarPorId(String id) {
         logger.logInfo("Iniciando busca de peça alocada por id - pecaAlocadaId={}", id);
         var pecaAlocada = new BuscarPecaAlocadaPorIdUseCase(buscarPorIdGateway, logger).execute(id);
         logger.logInfo("Busca de peça alocada por id concluída com sucesso - pecaAlocadaId={}", id);

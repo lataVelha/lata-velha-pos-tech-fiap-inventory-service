@@ -4,14 +4,9 @@ spring:
   profiles:
     active: ${ENVIRONMENT:dev}
 
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lata_velha_inventory}
-    username: ${SPRING_DATASOURCE_USERNAME:admin}
-    password: ${SPRING_DATASOURCE_PASSWORD:admin123}
-
-  jpa:
-    hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://admin:admin123@localhost:27017/lata_velha_inventory?authSource=admin}
 
   rabbitmq:
     listener:
@@ -24,9 +19,11 @@ spring:
           multiplier: 2
           max-interval: 10s
 
-  flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:true}
-    locations: classpath:db/migration,classpath:db/migration-postgresql
+mongock:
+  enabled: ${MONGOCK_ENABLED:true}
+  migration-scan-package:
+    - br.com.lata.velha.ordem_servico.infrastructure.persistence.migrations
+  transaction-enabled: false
 
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
