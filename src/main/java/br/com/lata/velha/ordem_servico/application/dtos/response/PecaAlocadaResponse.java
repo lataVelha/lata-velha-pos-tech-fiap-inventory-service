@@ -7,10 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record PecaAlocadaResponse(
 
         @Schema(example = "10")
-        Long id,
+        String id,
 
         @Schema(example = "5")
-        Long pecaId,
+        String pecaId,
 
         @Schema(example = "Pastilha de Freio")
         String pecaNome,

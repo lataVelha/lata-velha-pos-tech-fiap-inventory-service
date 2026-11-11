@@ -33,6 +33,6 @@ public final class ServiceEndedEvent extends AbstractDomainEvent {
         return itens;
     }
 
-    public record ItemPeca(Long pecaId, Integer quantidade) {
+    public record ItemPeca(String pecaId, Integer quantidade) {
     }
 }

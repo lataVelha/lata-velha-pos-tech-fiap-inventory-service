@@ -1,40 +1,39 @@
 package br.com.lata.velha.ordem_servico.infrastructure.persistence.entities;
 
 import br.com.lata.velha.ordem_servico.domain.entities.Peca;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "PECA")
+@Document(collection = "PECA")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PecaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", nullable = false)
-    private Long id;
+    private String id;
 
-    @Column(name = "NOME", nullable = false)
+    @Field(name = "NOME")
     private String nome;
 
-    @Column(name = "DESCRICAO", nullable = false)
+    @Field(name = "DESCRICAO")
     private String descricao;
 
-    @Column(name = "VALOR", nullable = false)
+    @Field(name = "VALOR")
     private BigDecimal valor;
 
-    @Column(name = "ATIVO", nullable = false)
+    @Field(name = "ATIVO")
     private boolean ativo = true;
 
     public static PecaEntity fromDomain(Peca domain) {
         return new PecaEntity(
-                domain.getId(),
+                domain.getId() != null ? domain.getId(): null,
                 domain.getNome(),
                 domain.getDescricao(),
                 domain.getValor(),

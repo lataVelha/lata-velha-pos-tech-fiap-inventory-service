@@ -13,9 +13,9 @@ public interface PecaEstoqueRepository {
 
     Collection<PecaEstoque> saveAll(Collection<PecaEstoque> collection);
 
-    Optional<PecaEstoque> findByPecaId(Long pecaId);
+    Optional<PecaEstoque> findByPecaId(String pecaId);
 
-    void baixarEstoque(Long pecaId, Integer quantidade);
+    void baixarEstoque(String pecaId, Integer quantidade);
 
-    List<PecaEstoque> findAllByPecaIds(Set<Long> pecaIds);
+    List<PecaEstoque> findAllByPecaIds(Set<String> pecaIds);
 }

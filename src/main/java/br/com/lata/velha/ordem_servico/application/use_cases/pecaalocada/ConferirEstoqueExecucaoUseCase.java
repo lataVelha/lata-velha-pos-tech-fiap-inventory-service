@@ -61,6 +61,6 @@ public class ConferirEstoqueExecucaoUseCase {
     }
 
     public record Input(List<Item> itens) {
-        public record Item(Long execucaoServicoId, Long pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca) {}
+        public record Item(Long execucaoServicoId, String pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca) {}
     }
 }

@@ -19,7 +19,7 @@ public class EntradaPecaEstoqueUseCase {
         this.logger = logger;
     }
 
-    public PecaEstoque execute(Long pecaId, MovimentarPecaEstoqueRequest request) {
+    public PecaEstoque execute(String pecaId, MovimentarPecaEstoqueRequest request) {
         logger.logInfo("Registrando entrada de estoque - pecaId={}, quantidade={}", pecaId, request.quantidade());
         gateway.getPecaAtivaPorId(pecaId);
         var estoque = gateway.getEstoquePorPecaId(pecaId);

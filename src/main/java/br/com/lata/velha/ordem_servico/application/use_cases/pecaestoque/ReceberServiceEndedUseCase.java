@@ -32,8 +32,8 @@ public class ReceberServiceEndedUseCase {
     public void execute(ServiceEndedEvent event) {
         logger.logInfo("Processando ServiceEnded - osId={}, execucaoServicoId={}", event.getOsId(), event.getExecucaoServicoId());
 
-        var alocadasPorPecaId = new LinkedHashMap<Long, PecaAlocada>();
-        var naoReservadas = new ArrayList<Long>();
+        var alocadasPorPecaId = new LinkedHashMap<String, PecaAlocada>();
+        var naoReservadas = new ArrayList<String>();
         for (var item : event.getItens()) {
             var alocada = gateway.buscarPecaAlocadaExistente(event.getExecucaoServicoId(), item.pecaId());
             if (alocada.isEmpty()) {
@@ -78,7 +78,7 @@ public class ReceberServiceEndedUseCase {
         return new DeduzirEstoqueExecucaoUseCase.Input(event.getExecucaoServicoId(), itens);
     }
 
-    private void marcarInstaladas(List<ServiceEndedEvent.ItemPeca> itensPendentes, Map<Long, PecaAlocada> alocadasPorPecaId) {
+    private void marcarInstaladas(List<ServiceEndedEvent.ItemPeca> itensPendentes, Map<String, PecaAlocada> alocadasPorPecaId) {
         for (var item : itensPendentes) {
             var pecaAlocada = alocadasPorPecaId.get(item.pecaId());
             pecaAlocada.instalar(item.quantidade());

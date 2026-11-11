@@ -22,11 +22,7 @@ services:
       OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: http/protobuf
       DEPLOYMENT_ENVIRONMENT_NAME: docker
       SERVICE_VERSION: 0.0.1
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/lata_velha
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin123
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/lata_velha?authSource=admin
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: "587"
       SPRING_MAIL_USERNAME: lata.velha.fiap@gmail.com
@@ -34,7 +30,7 @@ services:
       JWT_ISSUER: lata-velha
       JWT_EXPIRES_IN: "3600"
     depends_on:
-      postgres:
+      mongodb:
         condition: service_healthy
       datadog-agent:
         condition: service_started
@@ -49,20 +45,20 @@ services:
     networks:
       - app_network
 
-  postgres:
-    image: postgres:15
-    container_name: postgres-lata-velha
+  mongodb:
+    image: mongo:7
+    container_name: mongodb-lata-velha
     restart: unless-stopped
     environment:
-      POSTGRES_DB: lata_velha
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: lata_velha
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d lata_velha"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,7 +96,7 @@ services:
       - app_network
 
 volumes:
-  postgres_data:
+  mongo_data:
 
 networks:
   app_network:

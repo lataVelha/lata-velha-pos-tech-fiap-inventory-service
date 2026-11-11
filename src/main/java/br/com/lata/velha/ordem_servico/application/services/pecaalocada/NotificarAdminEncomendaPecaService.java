@@ -25,7 +25,7 @@ public class NotificarAdminEncomendaPecaService {
         this.logger = logger;
     }
 
-    public record Input(Long execucaoServicoId, Long pecaId, Integer quantidade) {}
+    public record Input(Long execucaoServicoId, String pecaId, Integer quantidade) {}
 
     public void execute(Input input) {
         logger.logInfo("Notificando admins sobre encomenda de peça - execucaoServicoId={}, pecaId={}, quantidade={}",

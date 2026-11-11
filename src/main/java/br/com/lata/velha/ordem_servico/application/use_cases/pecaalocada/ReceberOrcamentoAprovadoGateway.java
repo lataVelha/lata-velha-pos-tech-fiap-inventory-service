@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ReceberOrcamentoAprovadoGateway {
-    Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, Long pecaId);
-    List<Peca> getPecasPorIds(Set<Long> ids);
+    Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, String pecaId);
+    List<Peca> getPecasPorIds(Set<String> ids);
     List<PecaAlocada> getTodasPecaAlocadaPorExecucaoServicoId(Long execucaoServicoId);
 }

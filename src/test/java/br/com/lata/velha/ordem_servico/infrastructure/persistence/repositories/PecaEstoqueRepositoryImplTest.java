@@ -23,17 +23,17 @@ import static org.mockito.Mockito.when;
 class PecaEstoqueRepositoryImplTest {
 
     @Mock
-    private PecaEstoqueJpaRepository jpaRepository;
+    private PecaEstoqueMongoRepository jpaRepository;
 
     @InjectMocks
     private PecaEstoqueRepositoryImpl repository;
 
     private PecaEstoque domainEstoque() {
-        return new PecaEstoque(1L, 10, 8);
+        return new PecaEstoque("1", 10, 8);
     }
 
     private PecaEstoqueEntity entityEstoque() {
-        return new PecaEstoqueEntity(1L, 10, 8);
+        return new PecaEstoqueEntity("1", 10, 8);
     }
 
     @Nested
@@ -88,9 +88,9 @@ class PecaEstoqueRepositoryImplTest {
         @Test
         @DisplayName("deve retornar Optional com estoque quando encontrado")
         void deveRetornarQuandoEncontrado() {
-            when(jpaRepository.findById(1L)).thenReturn(Optional.of(entityEstoque()));
+            when(jpaRepository.findById("1")).thenReturn(Optional.of(entityEstoque()));
 
-            var result = repository.findByPecaId(1L);
+            var result = repository.findByPecaId("1");
 
             assertThat(result).isPresent();
             assertThat(result.get().getPecaId()).isEqualTo(1L);
@@ -99,9 +99,9 @@ class PecaEstoqueRepositoryImplTest {
         @Test
         @DisplayName("deve retornar Optional vazio quando não encontrado")
         void deveRetornarVazioQuandoNaoEncontrado() {
-            when(jpaRepository.findById(99L)).thenReturn(Optional.empty());
+            when(jpaRepository.findById("99")).thenReturn(Optional.empty());
 
-            var result = repository.findByPecaId(99L);
+            var result = repository.findByPecaId("99");
 
             assertThat(result).isEmpty();
         }
@@ -114,9 +114,9 @@ class PecaEstoqueRepositoryImplTest {
         @Test
         @DisplayName("deve delegar ao JPA repository")
         void deveDelegarAoJpaRepository() {
-            repository.baixarEstoque(1L, 3);
+            repository.baixarEstoque("1", 3);
 
-            verify(jpaRepository).baixarEstoque(1L, 3);
+            verify(jpaRepository).baixarEstoque("1", 3);
         }
     }
 
@@ -127,10 +127,10 @@ class PecaEstoqueRepositoryImplTest {
         @Test
         @DisplayName("deve retornar lista de estoques mapeados")
         void deveRetornarListaMapeada() {
-            when(jpaRepository.findAllByPecaIdIn(Set.of(1L, 2L)))
-                    .thenReturn(List.of(entityEstoque(), new PecaEstoqueEntity(2L, 5, 5)));
+            when(jpaRepository.findAllByPecaIdIn(Set.of("1", "2")))
+                    .thenReturn(List.of(entityEstoque(), new PecaEstoqueEntity("2", 5, 5)));
 
-            var result = repository.findAllByPecaIds(Set.of(1L, 2L));
+            var result = repository.findAllByPecaIds(Set.of("1", "2"));
 
             assertThat(result).hasSize(2);
         }
@@ -140,7 +140,7 @@ class PecaEstoqueRepositoryImplTest {
         void deveRetornarVazioQuandoNenhumaEncontrada() {
             when(jpaRepository.findAllByPecaIdIn(any())).thenReturn(List.of());
 
-            var result = repository.findAllByPecaIds(Set.of(99L));
+            var result = repository.findAllByPecaIds(Set.of("99"));
 
             assertThat(result).isEmpty();
         }

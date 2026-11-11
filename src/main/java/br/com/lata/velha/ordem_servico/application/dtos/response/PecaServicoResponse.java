@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 public record PecaServicoResponse(
 
         @Schema(example = "10")
-        Long alocacaoId,
+        String alocacaoId,
 
         @Schema(example = "1")
-        Long id,
+        String id,
 
         @Schema(example = "Pastilha de freio")
         String nome,

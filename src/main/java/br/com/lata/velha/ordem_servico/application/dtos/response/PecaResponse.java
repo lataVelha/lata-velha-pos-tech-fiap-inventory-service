@@ -5,7 +5,7 @@ import br.com.lata.velha.ordem_servico.domain.entities.Peca;
 import java.math.BigDecimal;
 
 public record PecaResponse(
-    Long id,
+    String id,
     String nome,
     String descricao,
     BigDecimal valor,

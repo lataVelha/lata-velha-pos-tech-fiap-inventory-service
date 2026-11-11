@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 @RequiredArgsConstructor
 public class PecaAlocadaRepositoryImpl implements PecaAlocadaRepository {
-    private final PecaAlocadaJpaRepository jpaRepository;
+    private final PecaAlocadaMongoRepository jpaRepository;
     private final Logger logger;
 
     @Override
@@ -36,7 +36,7 @@ public class PecaAlocadaRepositoryImpl implements PecaAlocadaRepository {
     }
 
     @Override
-    public PecaAlocada findById(Long id) {
+    public PecaAlocada findById(String id) {
         return jpaRepository.findById(id)
                 .map(PecaAlocadaEntity::toDomain)
                 .orElseThrow(() -> {
@@ -60,18 +60,18 @@ public class PecaAlocadaRepositoryImpl implements PecaAlocadaRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String id) {
         jpaRepository.deleteById(id);
     }
 
     @Override
-    public List<PecaAlocada> buscarPendentesPorPecaOrdenado(Long pecaId) {
+    public List<PecaAlocada> buscarPendentesPorPecaOrdenado(String pecaId) {
         return jpaRepository.buscarPendentesPorPecaOrdenado(pecaId)
                 .stream().map(PecaAlocadaEntity::toDomain).toList();
     }
 
     @Override
-    public PecaAlocada findByPecaIdAndServicoOsId(Long pecaId, Long servicoOsId) {
+    public PecaAlocada findByPecaIdAndServicoOsId(String pecaId, Long servicoOsId) {
         return  jpaRepository.findByPecaIdAndExecucaoServicoId(pecaId,servicoOsId)
                 .map(PecaAlocadaEntity::toDomain)
                 .orElseThrow(() -> {

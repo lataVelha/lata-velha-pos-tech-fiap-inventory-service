@@ -55,14 +55,14 @@ public class PecaCleanController {
         return cadastrarPresenter.present(peca);
     }
 
-    public PecaResponse atualizar(Long id, AtualizarPecaRequest request) {
+    public PecaResponse atualizar(String id, AtualizarPecaRequest request) {
         logger.logInfo("Iniciando atualização de peça - pecaId={}", id);
         var peca = new AtualizarPecaUseCase(atualizarGateway, logger).execute(id, request);
         logger.logInfo("Atualização de peça concluída com sucesso - pecaId={}", id);
         return atualizarPresenter.present(peca);
     }
 
-    public PecaResponse buscarPorId(Long id) {
+    public PecaResponse buscarPorId(String id) {
         logger.logInfo("Iniciando busca de peça por id - pecaId={}", id);
         var peca = new BuscarPecaPorIdUseCase(buscarPorIdGateway, logger).execute(id);
         logger.logInfo("Busca de peça por id concluída com sucesso - pecaId={}", id);
@@ -76,7 +76,7 @@ public class PecaCleanController {
         return buscarTodosPresenter.present(result);
     }
 
-    public void desativar(Long id) {
+    public void desativar(String id) {
         logger.logInfo("Iniciando desativação de peça - pecaId={}", id);
         new DesativarPecaUseCase(desativarGateway, logger).execute(id);
         logger.logInfo("Desativação de peça concluída com sucesso - pecaId={}", id);

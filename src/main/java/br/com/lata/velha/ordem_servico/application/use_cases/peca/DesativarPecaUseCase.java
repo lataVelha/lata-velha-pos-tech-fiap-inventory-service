@@ -12,7 +12,7 @@ public class DesativarPecaUseCase {
         this.logger = logger;
     }
 
-    public void execute(Long id) {
+    public void execute(String id) {
         logger.logInfo("Buscando peça para desativação - pecaId={}", id);
         var peca = gateway.getPecaAtivaPorId(id);
         peca.desativar();

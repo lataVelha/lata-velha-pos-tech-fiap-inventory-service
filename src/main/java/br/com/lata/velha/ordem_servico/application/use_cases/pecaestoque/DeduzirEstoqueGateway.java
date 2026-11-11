@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface DeduzirEstoqueGateway {
-    List<PecaEstoque> getEstoquePorPecaIds(Set<Long> pecaIds);
+    List<PecaEstoque> getEstoquePorPecaIds(Set<String> pecaIds);
     void salvarEstoques(Collection<PecaEstoque> estoques);
 }

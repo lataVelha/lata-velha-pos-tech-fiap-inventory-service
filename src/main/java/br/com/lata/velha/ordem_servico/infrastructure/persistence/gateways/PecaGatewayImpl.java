@@ -50,7 +50,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public Peca getPecaAtivaPorId(Long id) {
+    public Peca getPecaAtivaPorId(String id) {
         return pecaRepository.getActiveById(id);
     }
 
@@ -60,7 +60,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public PecaAlocada getPecaAlocadaPorId(Long id) {
+    public PecaAlocada getPecaAlocadaPorId(String id) {
         return pecaAlocadaRepository.findById(id);
     }
 
@@ -70,7 +70,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public PecaEstoque getEstoquePorPecaId(Long pecaId) {
+    public PecaEstoque getEstoquePorPecaId(String pecaId) {
         return pecaEstoqueRepository.findByPecaId(pecaId)
                 .orElse(new PecaEstoque(pecaId, 0, 0));
     }
@@ -81,7 +81,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public PecaAlocada getOuCriarPecaAlocada(Long execucaoServicoId, Long pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca) {
+    public PecaAlocada getOuCriarPecaAlocada(Long execucaoServicoId, String pecaId, Integer quantidadeSolicitada, BigDecimal valorUnitarioPeca) {
         try {
             return pecaAlocadaRepository.findByPecaIdAndServicoOsId(pecaId, execucaoServicoId);
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
@@ -90,7 +90,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public List<PecaEstoque> getEstoquePorPecaIds(Set<Long> pecaIds) {
+    public List<PecaEstoque> getEstoquePorPecaIds(Set<String> pecaIds) {
         return pecaEstoqueRepository.findAllByPecaIds(pecaIds);
     }
 
@@ -100,7 +100,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, Long pecaId) {
+    public Optional<PecaAlocada> buscarPecaAlocadaExistente(Long execucaoServicoId, String pecaId) {
         try {
             return Optional.of(pecaAlocadaRepository.findByPecaIdAndServicoOsId(pecaId, execucaoServicoId));
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
@@ -109,7 +109,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public List<Peca> getPecasPorIds(Set<Long> ids) {
+    public List<Peca> getPecasPorIds(Set<String> ids) {
         return pecaRepository.findAllByIds(ids);
     }
 
@@ -119,7 +119,7 @@ public class PecaGatewayImpl implements
     }
 
     @Override
-    public List<PecaAlocada> buscarPendentesPorPeca(Long pecaId) {
+    public List<PecaAlocada> buscarPendentesPorPeca(String pecaId) {
         return pecaAlocadaRepository.buscarPendentesPorPecaOrdenado(pecaId);
     }
 }

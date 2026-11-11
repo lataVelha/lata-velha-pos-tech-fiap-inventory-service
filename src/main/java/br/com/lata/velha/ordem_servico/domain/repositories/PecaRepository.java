@@ -10,13 +10,13 @@ public interface PecaRepository {
 
     Peca save(Peca peca);
 
-    Peca getActiveById(Long id);
+    Peca getActiveById(String id);
 
-    List<Peca> findAllByIds(Set<Long> ids);
+    List<Peca> findAllByIds(Set<String> ids);
 
     PaginatedResult<Peca> findAllActivePaginated(int page, int size);
 
-    boolean existsActiveById(Long pecaId);
+    boolean existsActiveById(String pecaId);
 
-    Set<Peca> getAllActiveByIds(Set<Long> pecasIds);
+    Set<Peca> getAllActiveByIds(Set<String> pecasIds);
 }

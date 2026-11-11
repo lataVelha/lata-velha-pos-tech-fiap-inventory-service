@@ -14,7 +14,7 @@ public class AtualizarPecaUseCase {
         this.logger = logger;
     }
 
-    public Peca execute(Long id, AtualizarPecaRequest request) {
+    public Peca execute(String id, AtualizarPecaRequest request) {
         logger.logInfo("Buscando peça para atualização - pecaId={}", id);
         Peca peca = gateway.getPecaAtivaPorId(id);
         peca.atualizar(request.nome(), request.descricao(), request.valor());

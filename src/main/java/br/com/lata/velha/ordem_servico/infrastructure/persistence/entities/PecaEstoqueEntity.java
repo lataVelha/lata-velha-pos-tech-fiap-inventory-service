@@ -1,29 +1,26 @@
 package br.com.lata.velha.ordem_servico.infrastructure.persistence.entities;
 
 import br.com.lata.velha.ordem_servico.domain.entities.PecaEstoque;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Entity
-@Table(name = "PECA_ESTOQUE")
+@Document(collection = "PECA_ESTOQUE")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PecaEstoqueEntity {
 
     @Id
-    @Column(name = "PECA_ID", nullable = false)
-    private Long pecaId;
+    private String pecaId;
 
-    @Column(name = "QUANTIDADE_ARMAZENADA", nullable = false)
+    @Field(name = "QUANTIDADE_ARMAZENADA")
     private Integer quantidadeArmazenada;
 
-    @Column(name = "QUANTIDADE_DISPONIVEL", nullable = false)
+    @Field(name = "QUANTIDADE_DISPONIVEL")
     private Integer quantidadeDisponivel;
 
     public static PecaEstoqueEntity fromDomain(PecaEstoque domain) {

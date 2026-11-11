@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public final class PecaAlocada {
-    private final Long id;
-    private final Long pecaId;
+    private final String id;
+    private final String pecaId;
     private final Long execucaoServicoId;
 
     private BigDecimal valorUnitarioPeca;
@@ -21,7 +21,7 @@ public final class PecaAlocada {
     private StatusPecaAlocada status;
     private LocalDateTime atualizado;
 
-    public PecaAlocada(Long id, Long pecaId, Long execucaoServicoId, BigDecimal valorUnitarioPeca, Integer quantidadeSolicitada, Integer quantidadeReservada, Integer quantidadeEncomendada, Integer quantidadeInstalada, StatusPecaAlocada status, LocalDateTime atualizado) {
+    public PecaAlocada(String id, String pecaId, Long execucaoServicoId, BigDecimal valorUnitarioPeca, Integer quantidadeSolicitada, Integer quantidadeReservada, Integer quantidadeEncomendada, Integer quantidadeInstalada, StatusPecaAlocada status, LocalDateTime atualizado) {
         validatePecaId(pecaId);
         validateExecucaoServicoId(execucaoServicoId);
 
@@ -38,7 +38,7 @@ public final class PecaAlocada {
         this.atualizado = atualizado;
     }
 
-    public static PecaAlocada create(Long pecaId, Long execucaoServicoId, BigDecimal valorPecaUnitaria, Integer quantidadeSolicitada) {
+    public static PecaAlocada create(String pecaId, Long execucaoServicoId, BigDecimal valorPecaUnitaria, Integer quantidadeSolicitada) {
         var quantidadeReservadaInicial = 0;
         var quantidadeEncomendadaInicial = 0;
         var quantidadeInstaladaInicial = 0;
@@ -95,8 +95,8 @@ public final class PecaAlocada {
     }
     /* ================= GETTERS ================= */
 
-    public Long getId() { return id; }
-    public Long getPecaId() { return pecaId; }
+    public String getId() { return id; }
+    public String getPecaId() { return pecaId; }
     public Long getExecucaoServicoId() { return execucaoServicoId; }
     public BigDecimal getValorUnitarioPeca() { return valorUnitarioPeca; }
     public Integer getQuantidadeSolicitada() { return quantidadeSolicitada; }
@@ -133,7 +133,7 @@ public final class PecaAlocada {
             throw new IllegalArgumentException("Serviço obrigatório");
     }
 
-    private void validatePecaId(Long pecaId) {
+    private void validatePecaId(String pecaId) {
         if (pecaId == null)
             throw new IllegalArgumentException("Peça obrigatória");
     }

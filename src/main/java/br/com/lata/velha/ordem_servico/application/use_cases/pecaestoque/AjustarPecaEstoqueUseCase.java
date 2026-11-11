@@ -14,7 +14,7 @@ public class AjustarPecaEstoqueUseCase {
         this.logger = logger;
     }
 
-    public PecaEstoque execute(Long pecaId, AjustarPecaEstoqueRequest request) {
+    public PecaEstoque execute(String pecaId, AjustarPecaEstoqueRequest request) {
         logger.logInfo("Ajustando estoque de peça - pecaId={}, quantidadeArmazenada={}, quantidadeDisponivel={}",
                 pecaId, request.quantidadeArmazenada(), request.quantidadeDisponivel());
         gateway.getPecaAtivaPorId(pecaId);

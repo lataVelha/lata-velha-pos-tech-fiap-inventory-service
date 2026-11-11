@@ -26,16 +26,16 @@ class BuscarPecaAlocadaPorIdUseCaseTest {
 
     @Test
     void deveBuscarPecaAlocadaComSucesso() {
-        PecaAlocada pecaAlocada = new PecaAlocada(1L, 2L, 99L, BigDecimal.ZERO, 2, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
+        PecaAlocada pecaAlocada = new PecaAlocada("1", "2", 99L, BigDecimal.ZERO, 2, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
 
-        when(gateway.getPecaAlocadaPorId(1L)).thenReturn(pecaAlocada);
+        when(gateway.getPecaAlocadaPorId("1")).thenReturn(pecaAlocada);
 
         BuscarPecaAlocadaPorIdUseCase useCase = new BuscarPecaAlocadaPorIdUseCase(gateway, logger);
-        PecaAlocada response = useCase.execute(1L);
+        PecaAlocada response = useCase.execute("1");
 
         assertThat(response).isNotNull();
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getPecaId()).isEqualTo(2L);
-        verify(gateway).getPecaAlocadaPorId(1L);
+        verify(gateway).getPecaAlocadaPorId("1");
     }
 }

@@ -13,7 +13,7 @@ public class BuscarPecaEstoqueUseCase {
         this.logger = logger;
     }
 
-    public PecaEstoque execute(Long pecaId) {
+    public PecaEstoque execute(String pecaId) {
         logger.logInfo("Buscando estoque de peça - pecaId={}", pecaId);
         gateway.getPecaAtivaPorId(pecaId);
         return gateway.getEstoquePorPecaId(pecaId);
