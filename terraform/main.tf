@@ -9,29 +9,6 @@ data "terraform_remote_state" "infra_db" {
   }
 }
 
-# "Casco" do API Gateway (API + VPC Link + Stage, sem rotas) e o ALB —
-# ambos criados pelo repo infra (addons). Este repo anexa a propria
-# integracao com o ALB + as rotas publicas/protegidas.
-data "terraform_remote_state" "addons" {
-  backend = "s3"
-  config = {
-    bucket = var.state_bucket
-    key    = var.addons_state_key
-    region = var.region
-  }
-}
-
-# jwt_authorizer_id — anexado pelo repo lambda no mesmo API Gateway. As
-# rotas protegidas abaixo referenciam essa authorizer.
-data "terraform_remote_state" "lambda" {
-  backend = "s3"
-  config = {
-    bucket = var.state_bucket
-    key    = var.lambda_state_key
-    region = var.region
-  }
-}
-
 # Barramento SNS/SQS (Epic 13) — topic ARN e a fila deste serviço.
 data "terraform_remote_state" "messaging" {
   backend = "s3"
@@ -44,23 +21,7 @@ data "terraform_remote_state" "messaging" {
 
 locals {
   infra_db  = data.terraform_remote_state.infra_db.outputs
-  addons    = data.terraform_remote_state.addons.outputs
-  lambda    = data.terraform_remote_state.lambda.outputs
   messaging = data.terraform_remote_state.messaging.outputs
-
-  # Rotas PUBLICAS (sem authorizer) — espelham exatamente os .permitAll() do
-  # SecurityConfig.java do app.
-  public_routes = [
-    "ANY /actuator/health",
-    "ANY /actuator/health/{proxy+}",
-    "GET /swagger-ui.html",
-    "ANY /swagger-ui/{proxy+}",
-    "GET /v3/api-docs",
-    "ANY /v3/api-docs/{proxy+}",
-    "GET /v3/api-docs.yaml",
-    "ANY /auth/{proxy+}",
-    "POST /ordens-servico/{id}/aprovacao-orcamento",
-  ]
 }
 
 module "app" {
@@ -115,47 +76,6 @@ resource "aws_ecr_lifecycle_policy" "inventory_service" {
 }
 
 
-# --------------------------------------------------------------------------
-# Anexacao no API Gateway compartilhado (repo infra, addons): integracao
-# privada HTTP_PROXY com o ALB interno + rotas publicas/protegidas. O
-# "casco" do gateway (API + VPC Link + Stage) ja vem pronto do repo infra;
-# a lambda authorizer usada nas rotas protegidas ja vem anexada pelo repo
-# lambda (jwt_authorizer_id, lido acima via remote_state).
-# --------------------------------------------------------------------------
-
-# payload_format_version precisa ser "1.0" — integracoes privadas (VPC_LINK)
-# nao suportam 2.0.
-resource "aws_apigatewayv2_integration" "alb" {
-  api_id                 = local.addons.app_api_id
-  integration_type       = "HTTP_PROXY"
-  integration_uri        = local.addons.alb_listener_arn
-  integration_method     = "ANY"
-  connection_type        = "VPC_LINK"
-  connection_id          = local.addons.vpc_link_id
-  payload_format_version = "1.0"
-}
-
-resource "aws_apigatewayv2_route" "public" {
-  for_each  = toset(local.public_routes)
-  api_id    = local.addons.app_api_id
-  route_key = each.value
-  target    = "integrations/${aws_apigatewayv2_integration.alb.id}"
-}
-
-# Rotas PROTEGIDAS — tudo que nao esta na lista publica acima, exigindo a
-# authorizer (repo lambda).
-resource "aws_apigatewayv2_route" "protected_root" {
-  api_id             = local.addons.app_api_id
-  route_key          = "ANY /"
-  target             = "integrations/${aws_apigatewayv2_integration.alb.id}"
-  authorization_type = "CUSTOM"
-  authorizer_id      = local.lambda.jwt_authorizer_id
-}
-
-resource "aws_apigatewayv2_route" "protected_proxy" {
-  api_id             = local.addons.app_api_id
-  route_key          = "ANY /{proxy+}"
-  target             = "integrations/${aws_apigatewayv2_integration.alb.id}"
-  authorization_type = "CUSTOM"
-  authorizer_id      = local.lambda.jwt_authorizer_id
-}
+# As rotas do API Gateway e as listener rules do ALB ficam centralizadas no
+# repo infra (addons + edge). Este stack so provisiona o cluster/deploy do
+# servico e o ECR proprio.

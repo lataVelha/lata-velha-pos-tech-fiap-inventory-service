@@ -8,7 +8,8 @@
 #              deste serviço (nunca toca no `app` nem no inventory/billing)
 #
 # Pré-requisitos (aplicados pelo mono, nesta ordem):
-#   infra bootstrap → infra addons → infra-db → lambda
+#   infra bootstrap → infra addons → infra messaging → infra-db → lambda
+#   → edge (rotas do API Gateway)
 #
 # Uso:
 #   ./apply.sh                  — deploy com confirmação interativa
