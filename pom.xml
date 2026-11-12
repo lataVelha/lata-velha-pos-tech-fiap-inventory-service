@@ -185,12 +185,6 @@
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>sqs</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>br.com.lata.velha</groupId>
-			<artifactId>shared-kernel</artifactId>
-			<version>0.0.1</version>
-			<scope>compile</scope>
-		</dependency>
 
 	</dependencies>
 

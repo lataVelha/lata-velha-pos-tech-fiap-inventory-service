@@ -32,8 +32,8 @@ class BuscarPecasUseCaseTest {
     @Test
     @DisplayName("Deve listar pecas ativas de forma paginada")
     void deveListarPecasAtivasDeFormaPaginada() {
-        var peca1 = new Peca(1L, "Filtro", "Filtro de oleo", new BigDecimal("30.00"), true);
-        var peca2 = new Peca(2L, "Oleo", "Oleo sintetico", new BigDecimal("59.90"), true);
+        var peca1 = new Peca("1", "Filtro", "Filtro de oleo", new BigDecimal("30.00"), true);
+        var peca2 = new Peca("2", "Oleo", "Oleo sintetico", new BigDecimal("59.90"), true);
         var page = new PaginatedResult<>(List.of(peca1, peca2), 0, 10, 2L, 1);
 
         when(gateway.findAll(0, 10)).thenReturn(page);
@@ -44,8 +44,8 @@ class BuscarPecasUseCaseTest {
         assertThat(result.page()).isZero();
         assertThat(result.size()).isEqualTo(10);
         assertThat(result.totalElements()).isEqualTo(2);
-        assertThat(result.content().get(0).getId()).isEqualTo(1L);
-        assertThat(result.content().get(1).getId()).isEqualTo(2L);
+        assertThat(result.content().get(0).getId()).isEqualTo("1");
+        assertThat(result.content().get(1).getId()).isEqualTo("2");
         verify(gateway).findAll(0, 10);
     }
 }

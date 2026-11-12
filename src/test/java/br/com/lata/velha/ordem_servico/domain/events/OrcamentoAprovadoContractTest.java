@@ -49,7 +49,7 @@ class OrcamentoAprovadoContractTest {
         assertThat(event.getItens()).hasSize(1);
         var item = event.getItens().getFirst();
         assertThat(item.execucaoServicoId()).isEqualTo(10L);
-        assertThat(item.pecaId()).isEqualTo(100L);
+        assertThat(item.pecaId()).isEqualTo("100");
         assertThat(item.quantidade()).isEqualTo(2);
     }
 

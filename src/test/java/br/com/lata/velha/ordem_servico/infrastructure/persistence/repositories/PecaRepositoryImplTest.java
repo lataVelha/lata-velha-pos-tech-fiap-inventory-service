@@ -61,7 +61,7 @@ class PecaRepositoryImplTest {
 
             Peca result = repository.save(domainPeca());
 
-            assertThat(result.getId()).isEqualTo(1L);
+            assertThat(result.getId()).isEqualTo("1");
             assertThat(result.getNome()).isEqualTo("Filtro de óleo");
             verify(jpaRepository).save(entity);
         }
@@ -79,7 +79,7 @@ class PecaRepositoryImplTest {
 
             Peca result = repository.getActiveById("1");
 
-            assertThat(result.getId()).isEqualTo(1L);
+            assertThat(result.getId()).isEqualTo("1");
         }
 
         @Test

@@ -33,14 +33,14 @@ class CadastrarPecaUseCaseTest {
     @DisplayName("Deve cadastrar peca com sucesso")
     void deveCadastrarPecaComSucesso() {
         var request = new CadastrarPecaRequest("Pastilha", "Pastilha dianteira", new BigDecimal("150.00"));
-        var savedDomain = new Peca(10L, "Pastilha", "Pastilha dianteira", new BigDecimal("150.00"), true);
+        var savedDomain = new Peca("10", "Pastilha", "Pastilha dianteira", new BigDecimal("150.00"), true);
 
         when(gateway.salvarPeca(any())).thenReturn(savedDomain);
 
         var result = useCase.execute(request);
 
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(10L);
+        assertThat(result.getId()).isEqualTo("10");
         assertThat(result.getNome()).isEqualTo("Pastilha");
         assertThat(result.isAtivo()).isTrue();
         verify(gateway).salvarPeca(any());

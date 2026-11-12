@@ -23,9 +23,9 @@ class PecaAlocadaEntityTest {
         PecaEntity peca = new PecaEntity();
         LocalDateTime atualizado = LocalDateTime.now();
 
-        peca.setId(3L);
+        peca.setId("3");
 
-        entity.setId(1L);
+        entity.setId("1");
         entity.setQuantidadeSolicitada(8);
         entity.setQuantidadeReservada(5);
         entity.setQuantidadeEncomendada(3);
@@ -34,13 +34,13 @@ class PecaAlocadaEntityTest {
         entity.setExecucaoServicoId(2L);
         entity.setPeca(peca);
 
-        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getId()).isEqualTo("1");
         assertThat(entity.getQuantidadeSolicitada()).isEqualTo(8);
         assertThat(entity.getQuantidadeReservada()).isEqualTo(5);
         assertThat(entity.getQuantidadeEncomendada()).isEqualTo(3);
         assertThat(entity.getStatus()).isEqualTo(StatusPecaAlocada.PARCIAL);
         assertThat(entity.getAtualizado()).isEqualTo(atualizado);
         assertThat(entity.getExecucaoServicoId()).isEqualTo(2L);
-        assertThat(entity.getPeca().getId()).isEqualTo(3L);
+        assertThat(entity.getPeca().getId()).isEqualTo("3");
     }
 }

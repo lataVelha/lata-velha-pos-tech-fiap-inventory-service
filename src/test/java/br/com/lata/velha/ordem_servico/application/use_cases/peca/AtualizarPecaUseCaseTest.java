@@ -35,12 +35,12 @@ class AtualizarPecaUseCaseTest {
     @DisplayName("Deve atualizar peca com sucesso")
     void deveAtualizarPecaComSucesso() {
         var request = new AtualizarPecaRequest("Pastilha premium", "Pastilha ceramica", new BigDecimal("180.00"));
-        var peca = new Peca(1L, "Pastilha", "Pastilha comum", new BigDecimal("130.00"), true);
+        var peca = new Peca("1", "Pastilha", "Pastilha comum", new BigDecimal("130.00"), true);
 
-        when(gateway.getPecaAtivaPorId(1L)).thenReturn(peca);
+        when(gateway.getPecaAtivaPorId("1")).thenReturn(peca);
         when(gateway.salvarPeca(peca)).thenReturn(peca);
 
-        var result = useCase.execute(1L, request);
+        var result = useCase.execute("1", request);
 
         assertThat(peca.getNome()).isEqualTo("Pastilha premium");
         assertThat(peca.getDescricao()).isEqualTo("Pastilha ceramica");
@@ -53,9 +53,9 @@ class AtualizarPecaUseCaseTest {
     @DisplayName("Deve falhar quando peca nao existir")
     void deveFalharQuandoPecaNaoExistir() {
         var request = new AtualizarPecaRequest("Nome", "Descricao", new BigDecimal("50.00"));
-        when(gateway.getPecaAtivaPorId(99L)).thenThrow(new IllegalArgumentException("Peca nao encontrada"));
+        when(gateway.getPecaAtivaPorId("99")).thenThrow(new IllegalArgumentException("Peca nao encontrada"));
 
-        assertThatThrownBy(() -> useCase.execute(99L, request))
+        assertThatThrownBy(() -> useCase.execute("99", request))
                 .isInstanceOf(IllegalArgumentException.class);
         verify(gateway, never()).salvarPeca(any());
     }

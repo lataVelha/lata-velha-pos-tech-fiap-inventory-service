@@ -28,7 +28,7 @@ class EntradaPecaEstoqueUseCaseTest {
     @Mock
     private Logger logger;
 
-    private static final Long PECA_ID = 1L;
+    private static final String PECA_ID = "1";
 
     @Test
     @DisplayName("deve adicionar quantidade quando estoque já existe")
@@ -63,12 +63,12 @@ class EntradaPecaEstoqueUseCaseTest {
     @Test
     @DisplayName("deve lançar exceção quando peça não existe")
     void deveLancarExcecaoQuandoPecaNaoExiste() {
-        when(gateway.getPecaAtivaPorId(99L)).thenThrow(PecaNotFoundException.fromId(99L));
+        when(gateway.getPecaAtivaPorId("99")).thenThrow(PecaNotFoundException.fromId("99"));
         var request = new MovimentarPecaEstoqueRequest(5);
 
         EntradaPecaEstoqueUseCase useCase = new EntradaPecaEstoqueUseCase(gateway, eventPublisher, logger);
 
-        assertThatThrownBy(() -> useCase.execute(99L, request))
+        assertThatThrownBy(() -> useCase.execute("99", request))
                 .isInstanceOf(PecaNotFoundException.class);
     }
 }

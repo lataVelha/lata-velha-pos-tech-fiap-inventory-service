@@ -42,8 +42,8 @@ class PecaAlocadaPersistenceMapperTest {
         var domain = mapper.toDomain(entity);
 
         assertThat(domain).isNotNull();
-        assertThat(domain.getId()).isEqualTo(10L);
-        assertThat(domain.getPecaId()).isEqualTo(5L);
+        assertThat(domain.getId()).isEqualTo("10");
+        assertThat(domain.getPecaId()).isEqualTo("5");
         assertThat(domain.getExecucaoServicoId()).isEqualTo(1L);
         assertThat(domain.getValorUnitarioPeca()).isEqualByComparingTo("49.90");
         assertThat(domain.getQuantidadeSolicitada()).isEqualTo(4);
@@ -89,8 +89,8 @@ class PecaAlocadaPersistenceMapperTest {
         var entity = mapper.toEntity(domain);
 
         assertThat(entity).isNotNull();
-        assertThat(entity.getId()).isEqualTo(10L);
-        assertThat(entity.getPecaId()).isEqualTo(5L);
+        assertThat(entity.getId()).isEqualTo("10");
+        assertThat(entity.getPecaId()).isEqualTo("5");
         assertThat(entity.getExecucaoServicoId()).isEqualTo(1L);
         assertThat(entity.getValorUnitario()).isEqualByComparingTo("49.90");
         assertThat(entity.getQuantidadeSolicitada()).isEqualTo(4);

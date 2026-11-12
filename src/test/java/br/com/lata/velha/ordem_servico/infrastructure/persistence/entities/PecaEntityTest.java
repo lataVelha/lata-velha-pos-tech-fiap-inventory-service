@@ -19,13 +19,13 @@ class PecaEntityTest {
     void deveSetarEObterCampos() {
         PecaEntity entity = new PecaEntity();
 
-        entity.setId(7L);
+        entity.setId("7");
         entity.setNome("Pastilha");
         entity.setDescricao("Pastilha dianteira");
         entity.setValor(new BigDecimal("199.90"));
         entity.setAtivo(false);
 
-        assertThat(entity.getId()).isEqualTo(7L);
+        assertThat(entity.getId()).isEqualTo("7");
         assertThat(entity.getNome()).isEqualTo("Pastilha");
         assertThat(entity.getDescricao()).isEqualTo("Pastilha dianteira");
         assertThat(entity.getValor()).isEqualByComparingTo("199.90");

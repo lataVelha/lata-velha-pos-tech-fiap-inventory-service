@@ -31,22 +31,22 @@ class BuscarPecaPorIdUseCaseTest {
     @Test
     @DisplayName("Deve buscar peca ativa por ID com sucesso")
     void deveBuscarPecaAtivaPorIdComSucesso() {
-        var peca = new Peca(1L, "Disco de freio", "Disco dianteiro", new BigDecimal("220.00"), true);
-        when(gateway.getPecaAtivaPorId(1L)).thenReturn(peca);
+        var peca = new Peca("1", "Disco de freio", "Disco dianteiro", new BigDecimal("220.00"), true);
+        when(gateway.getPecaAtivaPorId("1")).thenReturn(peca);
 
-        var result = useCase.execute(1L);
+        var result = useCase.execute("1");
 
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getId()).isEqualTo("1");
         assertThat(result.getNome()).isEqualTo("Disco de freio");
-        verify(gateway).getPecaAtivaPorId(1L);
+        verify(gateway).getPecaAtivaPorId("1");
     }
 
     @Test
     @DisplayName("Deve falhar ao buscar peca inexistente")
     void deveFalharAoBuscarPecaInexistente() {
-        when(gateway.getPecaAtivaPorId(99L)).thenThrow(new IllegalArgumentException("Peca nao encontrada"));
+        when(gateway.getPecaAtivaPorId("99")).thenThrow(new IllegalArgumentException("Peca nao encontrada"));
 
-        assertThatThrownBy(() -> useCase.execute(99L))
+        assertThatThrownBy(() -> useCase.execute("99"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

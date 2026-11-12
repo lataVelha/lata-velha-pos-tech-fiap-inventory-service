@@ -17,9 +17,9 @@ class PecaTest {
     @Test
     @DisplayName("deve criar peça ativa por padrão no construtor com 4 argumentos")
     void shouldCreateActiveByDefaultWithFourArgsConstructor() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"));
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"));
 
-        assertEquals(1L, peca.getId());
+        assertEquals("1", peca.getId());
         assertEquals("Filtro", peca.getNome());
         assertEquals("Filtro de óleo", peca.getDescricao());
         assertEquals(new BigDecimal("35.00"), peca.getValor());
@@ -29,7 +29,7 @@ class PecaTest {
     @Test
     @DisplayName("deve atualizar dados válidos com sucesso")
     void shouldUpdateWithValidData() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         peca.atualizar("Pastilha", "Pastilha cerâmica", new BigDecimal("180.00"));
 
@@ -41,7 +41,7 @@ class PecaTest {
     @Test
     @DisplayName("deve falhar ao atualizar com nome inválido")
     void shouldFailWhenUpdatingWithInvalidNome() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         var valor = new BigDecimal("10.00");
         assertThrows(IllegalArgumentException.class,
@@ -51,7 +51,7 @@ class PecaTest {
     @Test
     @DisplayName("deve falhar ao atualizar com descrição inválida")
     void shouldFailWhenUpdatingWithInvalidDescricao() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         var valor = new BigDecimal("10.00");
         assertThrows(IllegalArgumentException.class,
@@ -61,7 +61,7 @@ class PecaTest {
     @Test
     @DisplayName("deve falhar ao atualizar com valor inválido")
     void shouldFailWhenUpdatingWithInvalidValor() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         assertThrows(IllegalArgumentException.class,
                 () -> peca.atualizar("Nome", "Descrição", BigDecimal.ZERO));
@@ -72,7 +72,7 @@ class PecaTest {
     void shouldFailOnConstructorWithInvalidNome() {
         var valor = new BigDecimal("10.00");
         assertThrows(IllegalArgumentException.class,
-                () -> new Peca(1L, "", "Descrição", valor, true));
+                () -> new Peca("1", "", "Descrição", valor, true));
     }
 
     @Test
@@ -80,7 +80,7 @@ class PecaTest {
     void shouldFailOnConstructorWithInvalidDescricao() {
         var valor = new BigDecimal("10.00");
         assertThrows(IllegalArgumentException.class,
-                () -> new Peca(1L, "Nome", "", valor, true));
+                () -> new Peca("1", "Nome", "", valor, true));
     }
 
     @Test
@@ -88,13 +88,13 @@ class PecaTest {
     void shouldFailOnConstructorWithInvalidValor() {
         var valor = new BigDecimal("0.00");
         assertThrows(IllegalArgumentException.class,
-                () -> new Peca(1L, "Nome", "Descrição", valor, true));
+                () -> new Peca("1", "Nome", "Descrição", valor, true));
     }
 
     @Test
     @DisplayName("deve desativar peça ativa com sucesso")
     void shouldDeactivateActivePeca() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         peca.desativar();
 
@@ -104,7 +104,7 @@ class PecaTest {
     @Test
     @DisplayName("deve falhar ao desativar peça já desativada")
     void shouldFailWhenDeactivatingAlreadyInactivePeca() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), false);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), false);
 
         assertThrows(IllegalArgumentException.class, peca::desativar);
     }
@@ -112,9 +112,9 @@ class PecaTest {
     @Test
     @DisplayName("deve implementar equals e hashCode por id")
     void shouldImplementEqualsAndHashCodeById() {
-        Peca peca1 = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
-        Peca peca2 = new Peca(1L, "Pastilha", "Pastilha dianteira", new BigDecimal("120.00"), true);
-        Peca peca3 = new Peca(2L, "Óleo", "Óleo sintético", new BigDecimal("59.90"), true);
+        Peca peca1 = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca2 = new Peca("1", "Pastilha", "Pastilha dianteira", new BigDecimal("120.00"), true);
+        Peca peca3 = new Peca("2", "Óleo", "Óleo sintético", new BigDecimal("59.90"), true);
 
         assertEquals(peca1, peca2);
         assertEquals(peca1.hashCode(), peca2.hashCode());
@@ -124,7 +124,7 @@ class PecaTest {
     @Test
     @DisplayName("deve gerar toString sem exceção")
     void shouldGenerateToStringWithoutException() {
-        Peca peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        Peca peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
 
         assertDoesNotThrow(peca::toString);
     }

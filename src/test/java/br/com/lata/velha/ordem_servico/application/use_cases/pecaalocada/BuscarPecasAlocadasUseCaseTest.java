@@ -28,8 +28,8 @@ class BuscarPecasAlocadasUseCaseTest {
 
     @Test
     void deveBuscarPecasDeUmServicoComSucesso() {
-        PecaAlocada peca1 = new PecaAlocada(1L, 2L, 99L, BigDecimal.ZERO, 2, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
-        PecaAlocada peca2 = new PecaAlocada(2L, 2L, 99L, BigDecimal.ZERO, 4, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
+        PecaAlocada peca1 = new PecaAlocada("1", "2", 99L, BigDecimal.ZERO, 2, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
+        PecaAlocada peca2 = new PecaAlocada("2", "2", 99L, BigDecimal.ZERO, 4, 0, 0, 0, StatusPecaAlocada.PENDENTE, LocalDateTime.now());
 
         PaginatedResult<PecaAlocada> paginatedResult = new PaginatedResult<>(
                 List.of(peca1, peca2), 0, 10, 2L, 1
@@ -42,8 +42,8 @@ class BuscarPecasAlocadasUseCaseTest {
 
         assertThat(response).isNotNull();
         assertThat(response.content()).hasSize(2);
-        assertThat(response.content().get(0).getId()).isEqualTo(1L);
-        assertThat(response.content().get(1).getId()).isEqualTo(2L);
+        assertThat(response.content().get(0).getId()).isEqualTo("1");
+        assertThat(response.content().get(1).getId()).isEqualTo("2");
         assertThat(response.content().get(0).getExecucaoServicoId()).isEqualTo(99L);
         verify(gateway).findByExecucaoServicoId(99L, 0, 10);
     }

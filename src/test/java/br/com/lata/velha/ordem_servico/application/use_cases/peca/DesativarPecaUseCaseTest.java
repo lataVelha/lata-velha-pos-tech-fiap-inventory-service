@@ -26,11 +26,11 @@ class DesativarPecaUseCaseTest {
     @Test
     @DisplayName("Deve desativar peça ativa com sucesso")
     void deveDesativarPecaAtivaComSucesso() {
-        var peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
-        when(gateway.getPecaAtivaPorId(1L)).thenReturn(peca);
+        var peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), true);
+        when(gateway.getPecaAtivaPorId("1")).thenReturn(peca);
 
         DesativarPecaUseCase useCase = new DesativarPecaUseCase(gateway, logger);
-        useCase.execute(1L);
+        useCase.execute("1");
 
         assertFalse(peca.isAtivo());
         verify(gateway).salvarPeca(peca);
@@ -39,12 +39,12 @@ class DesativarPecaUseCaseTest {
     @Test
     @DisplayName("Deve falhar quando peça já estiver desativada")
     void deveFalharQuandoPecaJaEstiverDesativada() {
-        var peca = new Peca(1L, "Filtro", "Filtro de óleo", new BigDecimal("35.00"), false);
-        when(gateway.getPecaAtivaPorId(1L)).thenReturn(peca);
+        var peca = new Peca("1", "Filtro", "Filtro de óleo", new BigDecimal("35.00"), false);
+        when(gateway.getPecaAtivaPorId("1")).thenReturn(peca);
 
         DesativarPecaUseCase useCase = new DesativarPecaUseCase(gateway, logger);
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.execute(1L));
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute("1"));
         verify(gateway, never()).salvarPeca(peca);
     }
 }

@@ -19,12 +19,6 @@ spring:
           multiplier: 2
           max-interval: 10s
 
-mongock:
-  enabled: ${MONGOCK_ENABLED:true}
-  migration-scan-package:
-    - br.com.lata.velha.ordem_servico.infrastructure.persistence.migrations
-  transaction-enabled: false
-
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
     port: ${SPRING_MAIL_PORT:587}
@@ -38,6 +32,12 @@ mongock:
             enable: true
             required: true
     default-encoding: UTF-8
+
+mongock:
+  enabled: ${MONGOCK_ENABLED:true}
+  migration-scan-package:
+    - br.com.lata.velha.ordem_servico.infrastructure.persistence.migrations
+  transaction-enabled: false
 
 # O API Gateway fala https com o cliente mas http com o ALB interno (VPC
 # Link + HTTP_PROXY) — sem isso, o Spring so enxerga a conexao http vinda do

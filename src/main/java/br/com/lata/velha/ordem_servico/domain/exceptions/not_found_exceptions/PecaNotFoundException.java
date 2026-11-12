@@ -8,7 +8,11 @@ public final class PecaNotFoundException extends NotFoundException {
         super(Peca.class, param, value);
     }
 
+    public static PecaNotFoundException fromId(String value) {
+        return new PecaNotFoundException("id", value);
+    }
+
     public static PecaNotFoundException fromId(Long value) {
-        return new PecaNotFoundException("id", value.toString());
+        return fromId(value != null ? value.toString() : null);
     }
 }

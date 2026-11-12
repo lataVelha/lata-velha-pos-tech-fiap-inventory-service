@@ -34,8 +34,8 @@ class BuscarPecaAlocadaPorIdUseCaseTest {
         PecaAlocada response = useCase.execute("1");
 
         assertThat(response).isNotNull();
-        assertThat(response.getId()).isEqualTo(1L);
-        assertThat(response.getPecaId()).isEqualTo(2L);
+        assertThat(response.getId()).isEqualTo("1");
+        assertThat(response.getPecaId()).isEqualTo("2");
         verify(gateway).getPecaAlocadaPorId("1");
     }
 }

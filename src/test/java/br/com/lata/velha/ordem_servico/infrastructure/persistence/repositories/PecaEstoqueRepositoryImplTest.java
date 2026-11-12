@@ -47,7 +47,7 @@ class PecaEstoqueRepositoryImplTest {
 
             PecaEstoque result = repository.save(domainEstoque());
 
-            assertThat(result.getPecaId()).isEqualTo(1L);
+            assertThat(result.getPecaId()).isEqualTo("1");
             assertThat(result.getQuantidadeArmazenada()).isEqualTo(10);
             assertThat(result.getQuantidadeDisponivel()).isEqualTo(8);
             verify(jpaRepository).save(any());
@@ -66,7 +66,7 @@ class PecaEstoqueRepositoryImplTest {
             var result = repository.saveAll(List.of(domainEstoque()));
 
             assertThat(result).hasSize(1);
-            assertThat(result.iterator().next().getPecaId()).isEqualTo(1L);
+            assertThat(result.iterator().next().getPecaId()).isEqualTo("1");
             verify(jpaRepository).saveAll(any());
         }
 
@@ -93,7 +93,7 @@ class PecaEstoqueRepositoryImplTest {
             var result = repository.findByPecaId("1");
 
             assertThat(result).isPresent();
-            assertThat(result.get().getPecaId()).isEqualTo(1L);
+            assertThat(result.get().getPecaId()).isEqualTo("1");
         }
 
         @Test

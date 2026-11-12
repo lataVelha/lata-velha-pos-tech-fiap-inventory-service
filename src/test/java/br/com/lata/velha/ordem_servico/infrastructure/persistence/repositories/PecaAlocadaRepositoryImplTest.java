@@ -56,8 +56,8 @@ class PecaAlocadaRepositoryImplTest {
 
             PecaAlocada result = repository.save(domainPeca());
 
-            assertThat(result.getId()).isEqualTo(1L);
-            assertThat(result.getPecaId()).isEqualTo(10L);
+            assertThat(result.getId()).isEqualTo("1");
+            assertThat(result.getPecaId()).isEqualTo("10");
             assertThat(result.getExecucaoServicoId()).isEqualTo(99L);
             assertThat(result.getQuantidadeSolicitada()).isEqualTo(3);
             assertThat(result.getStatus()).isEqualTo(StatusPecaAlocada.PENDENTE);
@@ -76,7 +76,7 @@ class PecaAlocadaRepositoryImplTest {
 
             PecaAlocada result = repository.findById("1");
 
-            assertThat(result.getId()).isEqualTo(1L);
+            assertThat(result.getId()).isEqualTo("1");
         }
 
         @Test
@@ -174,7 +174,7 @@ class PecaAlocadaRepositoryImplTest {
 
             PecaAlocada result = repository.findByPecaIdAndServicoOsId("10", 99L);
 
-            assertThat(result.getPecaId()).isEqualTo(10L);
+            assertThat(result.getPecaId()).isEqualTo("10");
             assertThat(result.getExecucaoServicoId()).isEqualTo(99L);
         }
 

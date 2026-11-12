@@ -25,14 +25,14 @@ class AjustarPecaEstoqueUseCaseTest {
 
     @Test
     void deveAjustarSaldoComSucesso() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
         AjustarPecaEstoqueRequest request = new AjustarPecaEstoqueRequest(4, 4);
 
-        when(gateway.getEstoquePorPecaId(1L)).thenReturn(estoque);
+        when(gateway.getEstoquePorPecaId("1")).thenReturn(estoque);
         when(gateway.salvarEstoque(any(PecaEstoque.class))).thenAnswer(i -> i.getArgument(0));
 
         AjustarPecaEstoqueUseCase useCase = new AjustarPecaEstoqueUseCase(gateway, logger);
-        PecaEstoque response = useCase.execute(1L, request);
+        PecaEstoque response = useCase.execute("1", request);
 
         assertThat(response.getQuantidadeArmazenada()).isEqualTo(4);
         assertThat(response.getQuantidadeDisponivel()).isEqualTo(4);
@@ -40,14 +40,14 @@ class AjustarPecaEstoqueUseCaseTest {
 
     @Test
     void deveAjustarEstoqueInicialQuandoGatewayRetornaVazio() {
-        PecaEstoque estoqueVazio = new PecaEstoque(1L, 0, 0);
+        PecaEstoque estoqueVazio = new PecaEstoque("1", 0, 0);
         AjustarPecaEstoqueRequest request = new AjustarPecaEstoqueRequest(10, 5);
 
-        when(gateway.getEstoquePorPecaId(1L)).thenReturn(estoqueVazio);
+        when(gateway.getEstoquePorPecaId("1")).thenReturn(estoqueVazio);
         when(gateway.salvarEstoque(any(PecaEstoque.class))).thenAnswer(i -> i.getArgument(0));
 
         AjustarPecaEstoqueUseCase useCase = new AjustarPecaEstoqueUseCase(gateway, logger);
-        PecaEstoque response = useCase.execute(1L, request);
+        PecaEstoque response = useCase.execute("1", request);
 
         assertThat(response.getQuantidadeArmazenada()).isEqualTo(10);
         assertThat(response.getQuantidadeDisponivel()).isEqualTo(5);
@@ -57,11 +57,11 @@ class AjustarPecaEstoqueUseCaseTest {
     void deveLancarExcecaoQuandoPecaNaoExiste() {
         AjustarPecaEstoqueRequest request = new AjustarPecaEstoqueRequest(10, 5);
 
-        when(gateway.getPecaAtivaPorId(99L)).thenThrow(PecaNotFoundException.fromId(99L));
+        when(gateway.getPecaAtivaPorId("99")).thenThrow(PecaNotFoundException.fromId("99"));
 
         AjustarPecaEstoqueUseCase useCase = new AjustarPecaEstoqueUseCase(gateway, logger);
 
-        assertThatThrownBy(() -> useCase.execute(99L, request))
+        assertThatThrownBy(() -> useCase.execute("99", request))
                 .isInstanceOf(PecaNotFoundException.class);
     }
 }

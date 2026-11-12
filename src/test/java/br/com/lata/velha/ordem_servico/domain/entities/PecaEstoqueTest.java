@@ -9,18 +9,18 @@ class PecaEstoqueTest {
 
     @Test
     void deveCriarEstoqueQuandoDadosValidos() {
-        PecaEstoque estoque = new PecaEstoque(1L, 5, 5);
+        PecaEstoque estoque = new PecaEstoque("1", 5, 5);
 
-        assertThat(estoque.getPecaId()).isEqualTo(1L);
+        assertThat(estoque.getPecaId()).isEqualTo("1");
         assertThat(estoque.getQuantidadeArmazenada()).isEqualTo(5);
         assertThat(estoque.getQuantidadeDisponivel()).isEqualTo(5);
     }
 
     @Test
     void deveCriarEstoqueViaFactoryMethod() {
-        PecaEstoque estoque = PecaEstoque.create(1L);
+        PecaEstoque estoque = PecaEstoque.create("1");
 
-        assertThat(estoque.getPecaId()).isEqualTo(1L);
+        assertThat(estoque.getPecaId()).isEqualTo("1");
         assertThat(estoque.getQuantidadeArmazenada()).isZero();
         assertThat(estoque.getQuantidadeDisponivel()).isZero();
     }
@@ -33,43 +33,43 @@ class PecaEstoqueTest {
     }
 
     @Test
-    void deveFalharQuandoPecaIdForMenorOuIgualAZero() {
-        assertThatThrownBy(() -> new PecaEstoque(0L, 5, 5))
+    void deveFalharQuandoPecaIdForVazio() {
+        assertThatThrownBy(() -> new PecaEstoque("", 5, 5))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("ID da peça inválido");
     }
 
     @Test
     void deveFalharQuandoQuantidadeArmazenadaForNula() {
-        assertThatThrownBy(() -> new PecaEstoque(1L, null, 0))
+        assertThatThrownBy(() -> new PecaEstoque("1", null, 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Quantidade armazenada inválida");
     }
 
     @Test
     void deveFalharQuandoQuantidadeArmazenadaForNegativa() {
-        assertThatThrownBy(() -> new PecaEstoque(1L, -1, 0))
+        assertThatThrownBy(() -> new PecaEstoque("1", -1, 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Quantidade armazenada inválida");
     }
 
     @Test
     void deveFalharQuandoQuantidadeDisponivelForNula() {
-        assertThatThrownBy(() -> new PecaEstoque(1L, 5, null))
+        assertThatThrownBy(() -> new PecaEstoque("1", 5, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Quantidade disponível inválida");
     }
 
     @Test
     void deveFalharQuandoQuantidadeDisponivelForNegativa() {
-        assertThatThrownBy(() -> new PecaEstoque(1L, 5, -1))
+        assertThatThrownBy(() -> new PecaEstoque("1", 5, -1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Quantidade disponível inválida");
     }
 
     @Test
     void deveAdicionarQuantidadeAoEstoque() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         estoque.adicionar(5);
 
@@ -79,7 +79,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoAdicionarQuantidadeNula() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         assertThatThrownBy(() -> estoque.adicionar(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -88,7 +88,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoAdicionarQuantidadeZeroOuNegativa() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         assertThatThrownBy(() -> estoque.adicionar(0))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -97,7 +97,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveAlocarQuantidadeDisponivel() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         estoque.alocar(4);
 
@@ -107,7 +107,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoAlocarMaisQueDisponivel() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 3);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 3);
 
         assertThatThrownBy(() -> estoque.alocar(5))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -116,7 +116,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveRetirarQuantidadeDoEstoque() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         estoque.retirar(3);
 
@@ -125,7 +125,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoRetirarQuantidadeNula() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 5);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 5);
 
         assertThatThrownBy(() -> estoque.retirar(null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -134,7 +134,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoRetirarQuantidadeZeroOuNegativa() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 5);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 5);
 
         assertThatThrownBy(() -> estoque.retirar(0))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -143,7 +143,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoRetirarMaisQueArmazenado() {
-        PecaEstoque estoque = new PecaEstoque(1L, 5, 5);
+        PecaEstoque estoque = new PecaEstoque("1", 5, 5);
 
         assertThatThrownBy(() -> estoque.retirar(6))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -152,7 +152,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveAjustarEstoqueComNovasQuantidades() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         estoque.ajustar(20, 15);
 
@@ -162,7 +162,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveFalharAoAjustarComQuantidadesInvalidas() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
         assertThatThrownBy(() -> estoque.ajustar(-1, 0))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -171,7 +171,7 @@ class PecaEstoqueTest {
 
     @Test
     void deveRetornarToString() {
-        PecaEstoque estoque = new PecaEstoque(1L, 5, 5);
+        PecaEstoque estoque = new PecaEstoque("1", 5, 5);
 
         assertThat(estoque.toString()).contains("pecaId=1").contains("quantidade=5");
     }

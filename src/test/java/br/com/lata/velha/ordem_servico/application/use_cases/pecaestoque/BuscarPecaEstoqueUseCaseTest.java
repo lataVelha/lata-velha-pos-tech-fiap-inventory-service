@@ -23,24 +23,24 @@ class BuscarPecaEstoqueUseCaseTest {
 
     @Test
     void deveBuscarEstoqueComSucesso() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
 
-        when(gateway.getEstoquePorPecaId(1L)).thenReturn(estoque);
+        when(gateway.getEstoquePorPecaId("1")).thenReturn(estoque);
 
         BuscarPecaEstoqueUseCase useCase = new BuscarPecaEstoqueUseCase(gateway, logger);
-        PecaEstoque result = useCase.execute(1L);
+        PecaEstoque result = useCase.execute("1");
 
-        assertThat(result.getPecaId()).isEqualTo(1L);
+        assertThat(result.getPecaId()).isEqualTo("1");
         assertThat(result.getQuantidadeArmazenada()).isEqualTo(10);
     }
 
     @Test
     void deveLancarExcecaoQuandoPecaNaoExiste() {
-        when(gateway.getPecaAtivaPorId(1L)).thenThrow(PecaNotFoundException.fromId(1L));
+        when(gateway.getPecaAtivaPorId("1")).thenThrow(PecaNotFoundException.fromId("1"));
 
         BuscarPecaEstoqueUseCase useCase = new BuscarPecaEstoqueUseCase(gateway, logger);
 
-        assertThatThrownBy(() -> useCase.execute(1L))
+        assertThatThrownBy(() -> useCase.execute("1"))
                 .isInstanceOf(PecaNotFoundException.class);
     }
 }

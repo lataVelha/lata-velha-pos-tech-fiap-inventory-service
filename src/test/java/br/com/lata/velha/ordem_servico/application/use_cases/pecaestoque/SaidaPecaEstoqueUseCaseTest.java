@@ -25,28 +25,28 @@ class SaidaPecaEstoqueUseCaseTest {
 
     @Test
     void deveBaixarEstoqueComSucesso() {
-        PecaEstoque estoque = new PecaEstoque(1L, 10, 10);
+        PecaEstoque estoque = new PecaEstoque("1", 10, 10);
         MovimentarPecaEstoqueRequest request = new MovimentarPecaEstoqueRequest(3);
 
-        when(gateway.getEstoquePorPecaId(1L)).thenReturn(estoque);
+        when(gateway.getEstoquePorPecaId("1")).thenReturn(estoque);
         when(gateway.salvarEstoque(any(PecaEstoque.class))).thenAnswer(i -> i.getArgument(0));
 
         SaidaPecaEstoqueUseCase useCase = new SaidaPecaEstoqueUseCase(gateway, logger);
-        PecaEstoque response = useCase.execute(1L, request);
+        PecaEstoque response = useCase.execute("1", request);
 
         assertThat(response.getQuantidadeArmazenada()).isEqualTo(7);
     }
 
     @Test
     void deveLancarExcecaoQuandoEstoqueInsuficiente() {
-        PecaEstoque estoque = new PecaEstoque(1L, 2, 2);
+        PecaEstoque estoque = new PecaEstoque("1", 2, 2);
         MovimentarPecaEstoqueRequest request = new MovimentarPecaEstoqueRequest(3);
 
-        when(gateway.getEstoquePorPecaId(1L)).thenReturn(estoque);
+        when(gateway.getEstoquePorPecaId("1")).thenReturn(estoque);
 
         SaidaPecaEstoqueUseCase useCase = new SaidaPecaEstoqueUseCase(gateway, logger);
 
-        assertThatThrownBy(() -> useCase.execute(1L, request))
+        assertThatThrownBy(() -> useCase.execute("1", request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Estoque insuficiente para a peça informada");
     }
@@ -55,11 +55,11 @@ class SaidaPecaEstoqueUseCaseTest {
     void deveLancarExcecaoQuandoPecaNaoExiste() {
         MovimentarPecaEstoqueRequest request = new MovimentarPecaEstoqueRequest(3);
 
-        when(gateway.getPecaAtivaPorId(1L)).thenThrow(PecaNotFoundException.fromId(1L));
+        when(gateway.getPecaAtivaPorId("1")).thenThrow(PecaNotFoundException.fromId("1"));
 
         SaidaPecaEstoqueUseCase useCase = new SaidaPecaEstoqueUseCase(gateway, logger);
 
-        assertThatThrownBy(() -> useCase.execute(1L, request))
+        assertThatThrownBy(() -> useCase.execute("1", request))
                 .isInstanceOf(PecaNotFoundException.class);
     }
 }

@@ -10,10 +10,10 @@ class PecaEstoqueEntityTest {
     void deveSetarEObterCampos() {
         PecaEstoqueEntity entity = new PecaEstoqueEntity();
 
-        entity.setPecaId(5L);
+        entity.setPecaId("5");
         entity.setQuantidadeArmazenada(12);
 
-        assertThat(entity.getPecaId()).isEqualTo(5L);
+        assertThat(entity.getPecaId()).isEqualTo("5");
         assertThat(entity.getQuantidadeArmazenada()).isEqualTo(12);
         assertThat(entity.toString()).contains("quantidadeArmazenada=12");
     }
@@ -21,11 +21,11 @@ class PecaEstoqueEntityTest {
     @Test
     void deveAplicarEqualsEHashCodeComMesmoConteudo() {
         PecaEstoqueEntity a = new PecaEstoqueEntity();
-        a.setPecaId(1L);
+        a.setPecaId("1");
         a.setQuantidadeArmazenada(3);
 
         PecaEstoqueEntity b = new PecaEstoqueEntity();
-        b.setPecaId(1L);
+        b.setPecaId("1");
         b.setQuantidadeArmazenada(3);
 
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
