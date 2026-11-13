@@ -1,12 +1,18 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: lata-velha-os-config
-  namespace: lata-velha-os
+  # Nome/namespace do PROPRIO inventory. Este arquivo era copia do os-service
+  # (lata-velha-os-config / lata-velha-os) e o Deployment procura
+  # lata-velha-inventory-config — o pod subia com CreateContainerConfigError.
+  name: lata-velha-inventory-config
+  namespace: lata-velha-inventory
 data:
   ENVIRONMENT: "prod"
-  SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
-  SPRING_FLYWAY_ENABLED: "true"
+  # O inventory usa MongoDB (nao ha driver JDBC/JPA no classpath). As chaves
+  # SPRING_DATASOURCE_*/SPRING_JPA_*/SPRING_FLYWAY_* que estavam aqui eram
+  # herança do os-service e nao tinham efeito nenhum.
+  SPRING_DATA_MONGODB_URI: "mongodb://mongodb:27017/lata_velha_inventory"
+  MONGOCK_ENABLED: "true"
   SPRING_MAIL_HOST: "smtp.gmail.com"
   SPRING_MAIL_PORT: "587"
   JWT_ISSUER: "lata-velha"

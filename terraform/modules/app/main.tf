@@ -11,6 +11,23 @@ resource "kubectl_manifest" "serviceaccount" {
   depends_on = [kubectl_manifest.namespace]
 }
 
+# --------------------------------------------------------------------------
+# MongoDB do inventory-service.
+# O cluster nao tem o addon aws-ebs-csi-driver nem StorageClass default (o
+# stack infra/addons nao instala CSI), entao PVC ficaria Pending — o manifest
+# usa emptyDir (ver comentario em k8s/mongodb-deployment.yaml). O banco sobe
+# antes do Deployment da aplicacao, para o Spring nao subir em CrashLoop.
+# --------------------------------------------------------------------------
+resource "kubectl_manifest" "mongodb" {
+  yaml_body  = file("${local.k8s_dir}/mongodb-deployment.yaml")
+  depends_on = [kubectl_manifest.namespace]
+}
+
+resource "kubectl_manifest" "mongodb_service" {
+  yaml_body  = file("${local.k8s_dir}/mongodb-service.yaml")
+  depends_on = [kubectl_manifest.mongodb]
+}
+
 resource "kubectl_manifest" "configmap" {
   yaml_body = templatefile("${local.k8s_dir}/configmap.yaml", {
     messaging_topic_arn = var.messaging_topic_arn
@@ -41,6 +58,7 @@ resource "kubectl_manifest" "deployment" {
     kubectl_manifest.serviceaccount,
     kubectl_manifest.configmap,
     kubectl_manifest.secret_db,
+    kubectl_manifest.mongodb_service,
   ]
 }
 

@@ -1,0 +1,64 @@
+# MongoDB do inventory-service (unico servico que usa Mongo: pecas, estoque e
+# alocacoes; as migrations rodam via Mongock no boot).
+#
+# Persistencia: emptyDir porque o cluster NAO tem o addon aws-ebs-csi-driver
+# nem StorageClass default (o stack `infra/addons` nao instala CSI), entao um
+# PVC ficaria eternamente Pending. Consequencia: se o pod for recriado os
+# dados se perdem — as migrations do Mongock rodam de novo e o estado volta ao
+# seed inicial. Para persistir de verdade: instalar o addon aws-ebs-csi-driver
+# no cluster e trocar o volume `data` por um PersistentVolumeClaim.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: lata-velha-inventory
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  # Recreate (e nao RollingUpdate): 2 pods ao mesmo tempo dividiriam o mesmo
+  # emptyDir inexistente e o Service apontaria para o pod sem dados.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        admission.datadoghq.com/enabled: "false"
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:7
+          ports:
+            - name: mongodb
+              containerPort: 27017
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data/db
+          readinessProbe:
+            tcpSocket:
+              port: mongodb
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: mongodb
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              # 1Gi de teto (nao de reserva): o seed + migrations do Mongock
+              # no boot passa de 512Mi com facilidade e o pod seria OOMKilled.
+              memory: 1Gi
+      volumes:
+        - name: data
+          emptyDir: {}
