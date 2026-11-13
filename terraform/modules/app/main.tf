@@ -54,6 +54,14 @@ resource "kubectl_manifest" "deployment" {
   yaml_body = templatefile("${local.k8s_dir}/deployment.yaml", {
     docker_image = var.docker_image
   })
+
+  # O provider gavinbunney/kubectl usa um timeout FIXO de 10min no create.
+  # Se o rollout nao termina (pod Pending/CrashLoop), o erro final vira o
+  # enganoso "client rate limiter Wait returned an error: context deadline
+  # exceeded" e esconde a causa. A espera + diagnostico (describe/logs/events)
+  # ficam no job `verify` (scripts/smoke-test.sh).
+  wait_for_rollout = false
+
   depends_on = [
     kubectl_manifest.serviceaccount,
     kubectl_manifest.configmap,

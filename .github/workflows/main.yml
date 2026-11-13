@@ -309,7 +309,8 @@ jobs:
     name: "CD · Verificação"
     needs: tf-deploy
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    # 20min: 10min de rollout + smoke test com retries + diagnósticos.
+    timeout-minutes: 20
     env:
       REGION: ${{ inputs.aws_region || vars.AWS_REGION || 'us-east-1' }}
     steps:
@@ -331,6 +332,7 @@ jobs:
           SERVICE: "lata-velha-inventory"
           NAMESPACE: "lata-velha-inventory"
           HEALTH_PATH: "/actuator/health"
+          ROLLOUT_TIMEOUT: "10m"
           EXPECTED_MESSAGE: "serviço=inventory-service namespace=lata-velha-inventory url=http://lata-velha-inventory.lata-velha-inventory.svc.cluster.local/actuator/health"
         run: bash scripts/smoke-test.sh
 

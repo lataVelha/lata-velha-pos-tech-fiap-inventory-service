@@ -11,7 +11,8 @@
 #   SERVICE=lata-velha-os NAMESPACE=lata-velha-os bash scripts/smoke-test.sh
 #
 # Variáveis: SERVICE, NAMESPACE, HEALTH_PATH (default /actuator/health),
-#            ATTEMPTS (10), RETRY_SECONDS (15), LOCAL_PORT (18080).
+#            ATTEMPTS (10), RETRY_SECONDS (15), LOCAL_PORT (18080),
+#            ROLLOUT_TIMEOUT (10m).
 
 set -Eeuo pipefail
 
@@ -21,6 +22,7 @@ HEALTH_PATH="${HEALTH_PATH:-/actuator/health}"
 ATTEMPTS="${ATTEMPTS:-10}"
 RETRY_SECONDS="${RETRY_SECONDS:-15}"
 LOCAL_PORT="${LOCAL_PORT:-18080}"
+ROLLOUT_TIMEOUT="${ROLLOUT_TIMEOUT:-10m}"
 KUBECTL="${KUBECTL:-kubectl}"
 
 if [[ -t 1 ]]; then
@@ -29,8 +31,36 @@ else
   C_GREEN=''; C_RED=''; C_YELLOW=''; C_RESET=''
 fi
 
-echo "${C_YELLOW}==> rollout status deployment/${SERVICE} -n ${NAMESPACE}${C_RESET}"
-${KUBECTL} rollout status "deployment/${SERVICE}" -n "${NAMESPACE}" --timeout=5m
+# Diagnóstico do rollout: sem isso, um pod em CrashLoop/Pending só aparece
+# como "rollout status" falhou (ou como o erro enganoso do provider kubectl:
+# "client rate limiter Wait returned an error: context deadline exceeded").
+dump_diagnostics() {
+  echo "--- deployment/${SERVICE} ---" >&2
+  ${KUBECTL} -n "${NAMESPACE}" get deployment "${SERVICE}" -o wide >&2 || true
+  ${KUBECTL} -n "${NAMESPACE}" describe deployment "${SERVICE}" >&2 || true
+
+  echo "--- pods ---" >&2
+  ${KUBECTL} -n "${NAMESPACE}" get pods -l "app=${SERVICE}" -o wide >&2 || true
+  ${KUBECTL} -n "${NAMESPACE}" describe pods -l "app=${SERVICE}" >&2 || true
+
+  echo "--- events (últimos 40) ---" >&2
+  ${KUBECTL} -n "${NAMESPACE}" get events --sort-by=.lastTimestamp 2>/dev/null | tail -40 >&2 || true
+
+  local pod
+  for pod in $(${KUBECTL} -n "${NAMESPACE}" get pods -l "app=${SERVICE}" -o name 2>/dev/null || true); do
+    echo "--- logs: ${pod} ---" >&2
+    ${KUBECTL} -n "${NAMESPACE}" logs "${pod}" --all-containers --tail=200 >&2 || true
+    echo "--- logs (previous): ${pod} ---" >&2
+    ${KUBECTL} -n "${NAMESPACE}" logs "${pod}" --all-containers --previous --tail=200 >&2 || true
+  done
+}
+
+echo "${C_YELLOW}==> rollout status deployment/${SERVICE} -n ${NAMESPACE} (timeout ${ROLLOUT_TIMEOUT})${C_RESET}"
+if ! ${KUBECTL} rollout status "deployment/${SERVICE}" -n "${NAMESPACE}" --timeout="${ROLLOUT_TIMEOUT}"; then
+  echo "${C_RED}✗ rollout nao concluiu — diagnostico abaixo${C_RESET}" >&2
+  dump_diagnostics
+  exit 1
+fi
 
 PF_PID=""
 cleanup() {

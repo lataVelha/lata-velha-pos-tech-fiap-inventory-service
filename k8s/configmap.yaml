@@ -13,6 +13,12 @@ data:
   # herança do os-service e nao tinham efeito nenhum.
   SPRING_DATA_MONGODB_URI: "mongodb://mongodb:27017/lata_velha_inventory"
   MONGOCK_ENABLED: "true"
+  # O spring-boot-starter-amqp esta no classpath (usado no dev com
+  # MESSAGING_PROVIDER=rabbitmq). Em prod o provider e SQS e nao existe
+  # broker: sem desligar o health indicator o /actuator/health agrega DOWN
+  # (Connection refused em localhost:5672) e o startupProbe mata o pod em
+  # loop. Mesmo ajuste que os-service/billing ja tinham.
+  MANAGEMENT_HEALTH_RABBIT_ENABLED: "false"
   SPRING_MAIL_HOST: "smtp.gmail.com"
   SPRING_MAIL_PORT: "587"
   JWT_ISSUER: "lata-velha"
