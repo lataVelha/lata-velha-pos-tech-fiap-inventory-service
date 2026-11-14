@@ -86,10 +86,12 @@ management:
 springdoc:
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
+    path: /inventory/swagger-ui.html
+  webjars:
+    prefix: /inventory
   api-docs:
     enabled: true
-    path: /v3/api-docs
+    path: /inventory/v3/api-docs
 
 thymeleaf:
   prefix: classpath:/templates/
