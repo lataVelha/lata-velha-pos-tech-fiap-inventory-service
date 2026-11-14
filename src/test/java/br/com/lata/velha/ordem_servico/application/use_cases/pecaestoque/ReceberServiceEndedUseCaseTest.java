@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -163,5 +164,75 @@ class ReceberServiceEndedUseCaseTest {
         var captor = ArgumentCaptor.forClass(DeducaoEstoqueFalhouEvent.class);
         verify(eventPublisher).publish(captor.capture());
         assertThat(captor.getValue().getMotivo()).isEqualTo("sem registro de estoque");
+    }
+
+    @Test
+    @DisplayName("não deve deduzir nada quando a quantidade excede a reserva")
+    void naoDeveDeduzirQuandoQuantidadeExcedeReserva() {
+        var peca = alocada("1", "10", StatusPecaAlocada.RESERVADA, 2, 2, 0);
+        when(gateway.buscarPecaAlocadaExistente(EXECUCAO_ID, "10")).thenReturn(Optional.of(peca));
+
+        useCase.execute(evento(new ServiceEndedEvent.ItemPeca("10", 5)));
+
+        verifyNoInteractions(deduzirEstoqueExecucaoUseCase);
+        verify(gateway, never()).salvarPecaAlocada(any());
+
+        var captor = ArgumentCaptor.forClass(DeducaoEstoqueFalhouEvent.class);
+        verify(eventPublisher).publish(captor.capture());
+        assertThat(captor.getValue().getMotivo()).contains("Quantidade reservada insuficiente");
+        assertThat(peca.getQuantidadeInstalada()).isZero();
+    }
+
+    @Test
+    @DisplayName("reentrega de ServiceEnded parcial não deduz estoque duas vezes")
+    void reentregaParcialNaoDeduzDuasVezes() {
+        var peca = alocada("1", "10", StatusPecaAlocada.RESERVADA, 3, 3, 0);
+        when(gateway.buscarPecaAlocadaExistente(EXECUCAO_ID, "10")).thenReturn(Optional.of(peca));
+
+        useCase.execute(evento(new ServiceEndedEvent.ItemPeca("10", 1)));
+
+        var inputCaptor = ArgumentCaptor.forClass(DeduzirEstoqueExecucaoUseCase.Input.class);
+        verify(deduzirEstoqueExecucaoUseCase).execute(inputCaptor.capture());
+        assertThat(inputCaptor.getValue().itens().getFirst().quantidade()).isEqualTo(1);
+        assertThat(peca.getQuantidadeInstalada()).isEqualTo(1);
+        assertThat(peca.getStatus()).isEqualTo(StatusPecaAlocada.RESERVADA);
+
+        useCase.execute(evento(new ServiceEndedEvent.ItemPeca("10", 1)));
+
+        verify(deduzirEstoqueExecucaoUseCase, times(1)).execute(any());
+        verify(gateway, times(1)).salvarPecaAlocada(peca);
+        verifyNoInteractions(eventPublisher);
+        assertThat(peca.getQuantidadeInstalada()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("deve deduzir apenas a diferença quando a instalação anterior foi parcial")
+    void deveDeduzirApenasADiferenca() {
+        var peca = alocada("1", "10", StatusPecaAlocada.RESERVADA, 3, 3, 1);
+        when(gateway.buscarPecaAlocadaExistente(EXECUCAO_ID, "10")).thenReturn(Optional.of(peca));
+
+        useCase.execute(evento(new ServiceEndedEvent.ItemPeca("10", 3)));
+
+        var inputCaptor = ArgumentCaptor.forClass(DeduzirEstoqueExecucaoUseCase.Input.class);
+        verify(deduzirEstoqueExecucaoUseCase).execute(inputCaptor.capture());
+        assertThat(inputCaptor.getValue().itens().getFirst().quantidade()).isEqualTo(2);
+        assertThat(peca.getQuantidadeInstalada()).isEqualTo(3);
+        assertThat(peca.getStatus()).isEqualTo(StatusPecaAlocada.INSTALADA);
+    }
+
+    @Test
+    @DisplayName("deve publicar falha quando a quantidade informada é inválida")
+    void devePublicarFalhaQuandoQuantidadeInvalida() {
+        var peca = alocada("1", "10", StatusPecaAlocada.RESERVADA, 2, 2, 0);
+        when(gateway.buscarPecaAlocadaExistente(EXECUCAO_ID, "10")).thenReturn(Optional.of(peca));
+
+        useCase.execute(evento(new ServiceEndedEvent.ItemPeca("10", 0)));
+
+        verifyNoInteractions(deduzirEstoqueExecucaoUseCase);
+        verify(gateway, never()).salvarPecaAlocada(any());
+
+        var captor = ArgumentCaptor.forClass(DeducaoEstoqueFalhouEvent.class);
+        verify(eventPublisher).publish(captor.capture());
+        assertThat(captor.getValue().getMotivo()).contains("Quantidade inválida");
     }
 }

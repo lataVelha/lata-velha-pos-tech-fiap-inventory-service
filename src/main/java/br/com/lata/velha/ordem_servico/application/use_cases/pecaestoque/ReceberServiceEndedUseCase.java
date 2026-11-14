@@ -8,7 +8,6 @@ import br.com.lata.velha.shared.application.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -51,18 +50,37 @@ public class ReceberServiceEndedUseCase {
             return;
         }
 
-        var itensPendentes = event.getItens().stream()
-                .filter(item -> !alocadasPorPecaId.get(item.pecaId()).isInstalada())
+        var quantidadesInvalidas = event.getItens().stream()
+                .filter(item -> item.quantidade() == null || item.quantidade() <= 0)
+                .map(ServiceEndedEvent.ItemPeca::pecaId)
                 .toList();
 
-        if (itensPendentes.isEmpty()) {
+        if (!quantidadesInvalidas.isEmpty()) {
+            var motivo = "Quantidade inválida informada para as peças: " + quantidadesInvalidas;
+            logger.logError("Dedução de estoque recusada, quantidades inválidas - osId={}, execucaoServicoId={}, pecaIds={}",
+                    event.getOsId(), event.getExecucaoServicoId(), quantidadesInvalidas);
+            eventPublisher.publish(new DeducaoEstoqueFalhouEvent(event.getOsId(), event.getExecucaoServicoId(), motivo));
+            return;
+        }
+
+        var deltaPorPecaId = new LinkedHashMap<String, Integer>();
+        for (var item : event.getItens()) {
+            var alocada = alocadasPorPecaId.get(item.pecaId());
+            var delta = item.quantidade() - alocada.getQuantidadeInstalada();
+            if (delta > 0) {
+                deltaPorPecaId.put(item.pecaId(), delta);
+            }
+        }
+
+        if (deltaPorPecaId.isEmpty()) {
             logger.logInfo("ServiceEnded já processado anteriormente - execucaoServicoId={}", event.getExecucaoServicoId());
             return;
         }
 
         try {
-            deduzirEstoqueExecucaoUseCase.execute(toDeducaoInput(event, itensPendentes));
-            marcarInstaladas(itensPendentes, alocadasPorPecaId);
+            deltaPorPecaId.forEach((pecaId, delta) -> alocadasPorPecaId.get(pecaId).instalar(delta));
+            deduzirEstoqueExecucaoUseCase.execute(toDeducaoInput(event, deltaPorPecaId));
+            deltaPorPecaId.keySet().forEach(pecaId -> gateway.salvarPecaAlocada(alocadasPorPecaId.get(pecaId)));
             logger.logInfo("ServiceEnded processado com sucesso - execucaoServicoId={}", event.getExecucaoServicoId());
         } catch (IllegalArgumentException | IllegalStateException e) {
             logger.logError("Falha ao deduzir estoque para ServiceEnded - osId=" + event.getOsId()
@@ -71,18 +89,10 @@ public class ReceberServiceEndedUseCase {
         }
     }
 
-    private DeduzirEstoqueExecucaoUseCase.Input toDeducaoInput(ServiceEndedEvent event, List<ServiceEndedEvent.ItemPeca> itensPendentes) {
-        var itens = itensPendentes.stream()
-                .map(item -> new DeduzirEstoqueExecucaoUseCase.Input.Item(item.pecaId(), item.quantidade()))
+    private DeduzirEstoqueExecucaoUseCase.Input toDeducaoInput(ServiceEndedEvent event, Map<String, Integer> deltaPorPecaId) {
+        var itens = deltaPorPecaId.entrySet().stream()
+                .map(entry -> new DeduzirEstoqueExecucaoUseCase.Input.Item(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         return new DeduzirEstoqueExecucaoUseCase.Input(event.getExecucaoServicoId(), itens);
-    }
-
-    private void marcarInstaladas(List<ServiceEndedEvent.ItemPeca> itensPendentes, Map<String, PecaAlocada> alocadasPorPecaId) {
-        for (var item : itensPendentes) {
-            var pecaAlocada = alocadasPorPecaId.get(item.pecaId());
-            pecaAlocada.instalar(item.quantidade());
-            gateway.salvarPecaAlocada(pecaAlocada);
-        }
     }
 }
