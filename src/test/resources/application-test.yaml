@@ -24,3 +24,8 @@ otel:
   instrumentation:
     logback-appender:
       enabled: false
+
+# O @EnableMongock (MongockConfig) tentaria conectar no MongoDB no boot do
+# contexto de teste — não há Mongo em CI. Desliga no profile de teste.
+mongock:
+  enabled: false
