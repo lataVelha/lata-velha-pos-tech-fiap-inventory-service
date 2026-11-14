@@ -31,7 +31,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
+                        .requestMatchers("/inventory/swagger-ui.html", "/inventory/swagger-ui/**", "/inventory/v3/api-docs/**", "/inventory/v3/api-docs.yaml").permitAll()
                         .requestMatchers(HttpMethod.GET, "/pecas/**").permitAll()
                         .requestMatchers("/pecas/**").hasAnyRole(USER, MECANICO, ADMIN)
                         .anyRequest().authenticated()
