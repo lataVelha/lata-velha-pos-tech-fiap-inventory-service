@@ -37,11 +37,8 @@ resource "kubectl_manifest" "configmap" {
   depends_on = [kubectl_manifest.namespace]
 }
 
-resource "kubectl_manifest" "secret_db" {
+resource "kubectl_manifest" "secret" {
   yaml_body = templatefile("${local.k8s_dir}/secret.yaml", {
-    db_url_b64        = base64encode(var.db_url)
-    db_username_b64   = base64encode(var.db_username)
-    db_password_b64   = base64encode(var.db_password)
     mail_username_b64 = base64encode(var.mail_username)
     mail_password_b64 = base64encode(var.mail_password)
     dd_api_key_b64    = base64encode(var.dd_api_key)
@@ -65,7 +62,7 @@ resource "kubectl_manifest" "deployment" {
   depends_on = [
     kubectl_manifest.serviceaccount,
     kubectl_manifest.configmap,
-    kubectl_manifest.secret_db,
+    kubectl_manifest.secret,
     kubectl_manifest.mongodb_service,
   ]
 }

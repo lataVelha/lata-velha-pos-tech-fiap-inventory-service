@@ -61,7 +61,7 @@
     <springProfile name="prod">
         <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <customFields>{"service":"lata-velha-api"}</customFields>
+                <customFields>{"service":"lata-velha-inventory-service"}</customFields>
                 <includeCallerData>true</includeCallerData>
             </encoder>
         </appender>

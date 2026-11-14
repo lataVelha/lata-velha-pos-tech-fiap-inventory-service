@@ -5,11 +5,12 @@
 #   (padrão)   [1/5] Testes → [2/5] ECR + Docker → [3/5] Terraform apply →
 #              [4/5] Rollout → [5/5] Smoke test
 #   --destroy  remove Deployment/Service/ConfigMap/Secret/HPA/PDB e o ECR
-#              deste serviço (nunca toca no `app` nem no inventory/billing)
+#              deste serviço (nunca toca no os-service nem no billing)
 #
 # Pré-requisitos (aplicados pelo mono, nesta ordem):
-#   infra bootstrap → infra addons → infra messaging → infra-db → lambda
-#   → edge (rotas do API Gateway)
+#   infra bootstrap → infra addons → infra messaging → os/inventory/billing
+#   → lambda → edge (rotas do API Gateway)
+#   Este stack só precisa do bootstrap, do addons e do messaging.
 #
 # Uso:
 #   ./apply.sh                  — deploy com confirmação interativa
