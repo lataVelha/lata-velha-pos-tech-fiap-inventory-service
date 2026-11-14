@@ -232,8 +232,9 @@ class PecaAlocadaTest {
     @Test
     void deveSerIgualASiMesma() {
         PecaAlocada peca = buildPeca(3, 0, 0, StatusPecaAlocada.PENDENTE);
+        PecaAlocada mesmaReferencia = peca;
 
-        assertThat(peca).isEqualTo(peca);
+        assertThat(peca).isEqualTo(mesmaReferencia);
     }
 
     @Test
