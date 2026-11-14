@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.List;
 
@@ -28,6 +29,9 @@ class V002CargaInicialDadosTest {
     @Mock
     private PecaEstoqueMongoRepository estoqueRepository;
 
+    @Mock
+    private MongoTemplate mongoTemplate;
+
     @Test
     @DisplayName("deve inserir as peças e os estoques vinculados aos ids gerados")
     void deveCarregarDadosIniciais() {
@@ -37,7 +41,7 @@ class V002CargaInicialDadosTest {
             return entity;
         });
 
-        new V002CargaInicialDados().executar(pecaRepository, estoqueRepository);
+        new V002CargaInicialDados().executar(pecaRepository, estoqueRepository, mongoTemplate);
 
         verify(pecaRepository, times(7)).save(any(PecaEntity.class));
 

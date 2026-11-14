@@ -36,9 +36,9 @@ class V001CriarEstruturaEIndicesTest {
         verify(mongoTemplate).createCollection("PECA");
         verify(mongoTemplate).createCollection("PECA_ESTOQUE");
         verify(mongoTemplate).createCollection("PECA_ALOCADA");
-        verify(mongoTemplate).indexOps("PECA_ESTOQUE");
+        verify(mongoTemplate, never()).indexOps("PECA_ESTOQUE");
         verify(mongoTemplate).indexOps("PECA_ALOCADA");
-        verify(indexOperations, times(2)).ensureIndex(any(IndexDefinition.class));
+        verify(indexOperations, times(1)).ensureIndex(any(IndexDefinition.class));
     }
 
     @Test
@@ -50,7 +50,8 @@ class V001CriarEstruturaEIndicesTest {
         new V001CriarEstruturaEIndices().executar(mongoTemplate);
 
         verify(mongoTemplate, never()).createCollection(anyString());
-        verify(indexOperations, times(2)).ensureIndex(any(IndexDefinition.class));
+        verify(mongoTemplate, never()).indexOps("PECA_ESTOQUE");
+        verify(indexOperations, times(1)).ensureIndex(any(IndexDefinition.class));
     }
 
     @Test
