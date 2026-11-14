@@ -29,6 +29,9 @@
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.language>java</sonar.language>
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+		<!-- Os workflows do GitHub Actions não fazem parte do escopo da análise:
+		     evita o Quality Gate vermelho por S7637 (actions sem SHA). -->
+		<sonar.exclusions>.github/**</sonar.exclusions>
 
 		<!-- Exclui classes que não precisam de cobertura -->
 		<sonar.coverage.exclusions>
@@ -262,7 +265,7 @@
 						<include>**/*Tests.java</include>
 						<include>**/*IT.java</include>
 					</includes>
-					<argLine>-Dnet.bytebuddy.experimental=true</argLine>
+					<argLine>@{argLine} -Dnet.bytebuddy.experimental=true</argLine>
 					<systemPropertyVariables>
 						<otel.exporter.otlp.enabled>false</otel.exporter.otlp.enabled>
 						<otel.instrumentation.logback-appender.enabled>false</otel.instrumentation.logback-appender.enabled>
