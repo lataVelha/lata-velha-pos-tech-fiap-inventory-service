@@ -2,8 +2,8 @@ package br.com.lata.velha.ordem_servico.application.event_handlers;
 
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaalocada.ReceberOrcamentoAprovadoUseCase;
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque.ReceberServiceEndedUseCase;
-import br.com.lata.velha.ordem_servico.domain.events.OrcamentoAprovadoEvent;
-import br.com.lata.velha.ordem_servico.domain.events.ServiceEndedEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.ServiceEndedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ class EventHandlersTest {
     @DisplayName("OrcamentoAprovadoEventHandler deve identificar e delegar o evento")
     void deveTratarOrcamentoAprovado() {
         var handler = new OrcamentoAprovadoEventHandler(receberOrcamentoAprovadoUseCase);
-        var event = new OrcamentoAprovadoEvent(1L, List.of());
+        var event = new OrcamentoAprovadoEvent(1L, null, List.of());
 
         handler.handle(event);
 

@@ -1,8 +1,8 @@
 package br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque;
 
 import br.com.lata.velha.ordem_servico.domain.entities.PecaAlocada;
-import br.com.lata.velha.ordem_servico.domain.events.DeducaoEstoqueFalhouEvent;
-import br.com.lata.velha.ordem_servico.domain.events.ServiceEndedEvent;
+import br.com.lata.velha.shared.domain.events.DeducaoEstoqueFalhouEvent;
+import br.com.lata.velha.shared.domain.events.ServiceEndedEvent;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 

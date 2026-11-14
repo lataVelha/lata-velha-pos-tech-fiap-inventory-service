@@ -3,7 +3,7 @@ package br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque;
 import br.com.lata.velha.ordem_servico.application.dtos.request.MovimentarPecaEstoqueRequest;
 import br.com.lata.velha.ordem_servico.domain.entities.PecaEstoque;
 import br.com.lata.velha.ordem_servico.domain.enums.StatusPecaAlocada;
-import br.com.lata.velha.ordem_servico.domain.events.PecaCompletamenteAlocadaEvent;
+import br.com.lata.velha.shared.domain.events.PecaCompletamenteAlocadaEvent;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 
