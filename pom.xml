@@ -294,6 +294,7 @@
 					</execution>
 					<execution>
 						<id>check</id>
+						<phase>test</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
@@ -305,6 +306,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -314,10 +316,12 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>**/dto/**</exclude>
-						<exclude>**/entity/**</exclude>
+						<exclude>**/shared/**</exclude>
+						<exclude>**/dtos/**</exclude>
+						<exclude>**/persistence/**/entities/**</exclude>
+						<exclude>**/config/**</exclude>
 						<exclude>**/configuration/**</exclude>
-						<exclude>**/exception/**</exclude>
+						<exclude>**/exceptions/**</exclude>
 						<exclude>**/LataVelhaApplication.*</exclude>
 					</excludes>
 				</configuration>

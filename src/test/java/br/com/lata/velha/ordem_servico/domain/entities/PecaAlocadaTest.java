@@ -196,4 +196,51 @@ class PecaAlocadaTest {
 
         assertThat(peca.getAtualizado()).isNotNull();
     }
+
+    @Test
+    void deveIndicarAguardandoPecaParaEncomendaEParcial() {
+        assertThat(buildPeca(3, 0, 3, StatusPecaAlocada.ENCOMENDA).isAguardandoPeca()).isTrue();
+        assertThat(buildPeca(3, 2, 1, StatusPecaAlocada.PARCIAL).isAguardandoPeca()).isTrue();
+        assertThat(buildPeca(3, 3, 0, StatusPecaAlocada.RESERVADA).isAguardandoPeca()).isFalse();
+    }
+
+    @Test
+    void deveIndicarInstaladaApenasQuandoStatusInstalada() {
+        assertThat(buildPeca(3, 3, 0, StatusPecaAlocada.INSTALADA).isInstalada()).isTrue();
+        assertThat(buildPeca(3, 3, 0, StatusPecaAlocada.RESERVADA).isInstalada()).isFalse();
+    }
+
+    @Test
+    void devePermitirAlterarStatus() {
+        PecaAlocada peca = buildPeca(3, 0, 0, StatusPecaAlocada.PENDENTE);
+
+        peca.setStatus(StatusPecaAlocada.RESERVADA);
+
+        assertThat(peca.getStatus()).isEqualTo(StatusPecaAlocada.RESERVADA);
+    }
+
+    @Test
+    void deveCalcularHashCodePelaPecaEExecucaoQuandoIdForNulo() {
+        PecaAlocada a = PecaAlocada.create("10", 99L, BigDecimal.ZERO, 2);
+        PecaAlocada b = PecaAlocada.create("10", 99L, BigDecimal.ZERO, 2);
+        PecaAlocada outra = PecaAlocada.create("20", 99L, BigDecimal.ZERO, 2);
+
+        assertThat(a).hasSameHashCodeAs(b);
+        assertThat(a.hashCode()).isNotEqualTo(outra.hashCode());
+    }
+
+    @Test
+    void deveSerIgualASiMesma() {
+        PecaAlocada peca = buildPeca(3, 0, 0, StatusPecaAlocada.PENDENTE);
+        PecaAlocada mesmaReferencia = peca;
+
+        assertThat(peca).isEqualTo(mesmaReferencia);
+    }
+
+    @Test
+    void deveCalcularValorTotal() {
+        PecaAlocada peca = buildPeca(3, 0, 0, StatusPecaAlocada.PENDENTE);
+
+        assertThat(peca.getValorTotal()).isEqualByComparingTo(new BigDecimal("30.00"));
+    }
 }
