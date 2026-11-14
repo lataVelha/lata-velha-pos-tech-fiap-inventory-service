@@ -7,6 +7,7 @@ import br.com.lata.velha.ordem_servico.infrastructure.persistence.repositories.P
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,7 +16,20 @@ import java.util.List;
 public class V002CargaInicialDados {
 
     @Execution
-    public void executar(PecaMongoRepository pecaRepository, PecaEstoqueMongoRepository estoqueRepository) {
+    public void executar(PecaMongoRepository pecaRepository,
+                         PecaEstoqueMongoRepository estoqueRepository,
+                         MongoTemplate mongoTemplate) {
+        // O V001 antigo criava um índice unique em PECA_ID, mas o ID do
+        // estoque é o @Id (mapeado para _id). Como o campo PECA_ID não existe
+        // no documento, o índice barrava o segundo insert do seed com
+        // "E11000 duplicate key ... PECA_ID: null". Remove o índice legado
+        // antes de semear; em bases novas/corrigidas ele não existe.
+        try {
+            mongoTemplate.indexOps("PECA_ESTOQUE").dropIndex("PECA_ID_1");
+        } catch (RuntimeException ignored) {
+            // índice inexistente — nada a fazer
+        }
+
         // 1. Salva as peças e captura os objetos já com os IDs gerados pelo Mongo
         PecaEntity p1 = pecaRepository.save(new PecaEntity(null, "Filtro de óleo", "Filtro para motor", new BigDecimal("35.00"), true));
         PecaEntity p2 = pecaRepository.save(new PecaEntity(null, "Óleo 5W30", "Óleo sintético", new BigDecimal("59.90"), true));

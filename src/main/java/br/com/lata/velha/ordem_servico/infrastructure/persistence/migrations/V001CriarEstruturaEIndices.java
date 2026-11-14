@@ -3,10 +3,8 @@ package br.com.lata.velha.ordem_servico.infrastructure.persistence.migrations;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
-import org.springframework.data.mongodb.core.index.Index;
 import org.bson.Document;
 
 @ChangeUnit(id = "v001-criar-estrutura-indices", order = "001", author = "lata-velha")
@@ -24,9 +22,10 @@ public class V001CriarEstruturaEIndices {
             mongoTemplate.createCollection("PECA_ALOCADA");
         }
 
-        // Garante que cada peça tenha apenas um registro de estoque
-        mongoTemplate.indexOps("PECA_ESTOQUE")
-                .ensureIndex(new Index().on("PECA_ID", Sort.Direction.ASC).unique());
+        // PECA_ESTOQUE usa o próprio ID da peça como @Id (mapeado para _id,
+        // que já é único). O índice antigo em PECA_ID era incorreto: o campo
+        // não existe no documento, então o unique barrava o segundo insert
+        // da carga inicial com "dup key: { PECA_ID: null }".
 
         // Equivale ao CONSTRAINT UK_PECA_ALOCADA UNIQUE (EXECUCAO_SERVICO_ID, PECA_ID)
         Document ukFields = new Document()
