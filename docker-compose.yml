@@ -1,14 +1,14 @@
 services:
-  app:
-    container_name: lata-velha
+  inventory-service:
+    container_name: lata-velha-inventory-service-local
     build: "."
     restart: unless-stopped
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-docker}
       SPRING_PROFILES_ACTIVE: ${ENVIRONMENT:-docker}
       DD_API_KEY: ${DD_API_KEY}
-      OTEL_SERVICE_NAME: lata-velha-api
-      OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=docker,service.version=0.0.1,service.name=lata-velha
+      OTEL_SERVICE_NAME: lata-velha-inventory-service
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=docker,service.version=0.0.1,service.name=lata-velha-inventory-service
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       OTEL_LOGS_EXPORTER: otlp
@@ -22,11 +22,11 @@ services:
       OTEL_EXPORTER_OTLP_LOGS_PROTOCOL: http/protobuf
       DEPLOYMENT_ENVIRONMENT_NAME: docker
       SERVICE_VERSION: 0.0.1
-      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/lata_velha?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/lata_velha_inventory?authSource=admin
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: "587"
-      SPRING_MAIL_USERNAME: lata.velha.fiap@gmail.com
-      SPRING_MAIL_PASSWORD: suxj nonb utdn dokg
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
       JWT_ISSUER: lata-velha
       JWT_EXPIRES_IN: "3600"
     depends_on:
@@ -43,20 +43,20 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - app_network
+      - lata_velha_inventory_local
 
   mongodb:
     image: mongo:7
-    container_name: mongodb-lata-velha
+    container_name: mongodb-lata-velha-inventory-local
     restart: unless-stopped
     environment:
-      MONGO_INITDB_DATABASE: lata_velha
+      MONGO_INITDB_DATABASE: lata_velha_inventory
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin123
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo_inventory_data_local:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -64,16 +64,16 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - app_network
+      - lata_velha_inventory_local
 
   datadog-agent:
     image: datadog/agent:7
-    container_name: datadog-agent
+    container_name: lata-velha-inventory-datadog
     restart: unless-stopped
     environment:
       DD_API_KEY: ${DD_API_KEY}
       DD_SITE: us5.datadoghq.com
-      DD_HOSTNAME: lata-velha-docker
+      DD_HOSTNAME: lata-velha-inventory-docker
       DD_APM_ENABLED: "true"
       DD_APM_NON_LOCAL_TRAFFIC: "true"
       DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT: 0.0.0.0:4318
@@ -93,10 +93,10 @@ services:
       - "4317:4317"
       - "8126:8126"
     networks:
-      - app_network
+      - lata_velha_inventory_local
 
 volumes:
-  mongo_data:
+  mongo_inventory_data_local:
 
 networks:
-  app_network:
+  lata_velha_inventory_local:
