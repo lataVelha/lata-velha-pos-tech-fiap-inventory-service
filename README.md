@@ -9,7 +9,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white" alt="Java 21"/>
   <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-green?logo=springboot&logoColor=white" alt="Spring Boot"/>
-  <img src="https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/MongoDB-7-green?logo=mongodb&logoColor=white" alt="MongoDB"/>
   <img src="https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/SonarQube-Community-4E9BCD?logo=sonarqube&logoColor=white" alt="SonarQube"/>
   <img src="https://img.shields.io/badge/JaCoCo-Coverage-red?logo=java&logoColor=white" alt="JaCoCo"/>
@@ -38,7 +38,7 @@
 - [Fluxo de deploy (CI/CD)](./documentation/pipeline-cicd.svg)
 - [Deploy da aplicação](./terraform/README.md) — este repo só aplica os recursos da aplicação no cluster
 - Infraestrutura base (VPC/EKS/ECR/ALB): repo [`infra`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra)
-- Banco de dados (RDS): repo [`infra-db`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra-db)
+- Banco de dados: MongoDB no próprio Kubernetes (`k8s/mongodb-deployment.yaml` + `k8s/mongodb-service.yaml`)
 
 ---
 
@@ -48,7 +48,7 @@ Evolução da Fase 1. Provisionamento, deploy e operação migrados para AWS com
 
 ### Objetivos
 
-- **Reduzir riscos operacionais** com infraestrutura escalável na AWS (EKS + RDS + ALB).
+- **Reduzir riscos operacionais** com infraestrutura escalável na AWS (EKS + MongoDB + ALB).
 - **Automatizar provisionamento e deploy** com Terraform e GitHub Actions.
 - **Sustentar a evolução do código** com Clean Architecture, testes automatizados e cobertura mínima de 80%.
 - **Absorver picos de demanda** com autoscaling em duas camadas (HPA de pods + Cluster Autoscaler de nodes).
@@ -86,9 +86,7 @@ integração com o ALB e as rotas do API Gateway compartilhado ficam no repo `in
 
 - [`infra`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra) — VPC, EKS, ECR, ALB
   interno, "casco" do API Gateway, Cluster Autoscaler
-- [`infra-db`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra-db) — RDS PostgreSQL
-- [`lambda`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-lambda) — login por CPF e a
-  lambda authorizer usada nas rotas protegidas
+- [`lambda`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-lambda) — lambda authorizer (JWT) usada nas rotas protegidas; o login por CPF é do os-service
 
 O ALB não é acessível diretamente (subnets privadas, sem IP público) — todo tráfego externo
 passa pelo **API Gateway** (repo `infra`).
@@ -179,19 +177,19 @@ SPRING_MAIL_PASSWORD=xxxx xxxx xxxx xxxx   # Senha de App do Google
 
 ### Infraestrutura
 
-O arquivo principal traz PostgreSQL + aplicação:
+O arquivo principal traz MongoDB + aplicação:
 
 ```bash
 docker compose up --build -d
 ```
 
-Se necessário acesso ao banco com PgAdmin e SonarQube, rode:
+Se necessário acesso ao banco com Mongo Express e SonarQube, rode:
 
 ```bash
 docker compose -f docker/docker-compose-dev.yml up -d
 ```
 
-(PgAdmin fica em http://localhost:5050, email `admin@admin.com` / senha `admin123`)
+(Mongo Express fica em http://localhost:8081)
 
 Verificar se está tudo rodando:
 
@@ -233,7 +231,7 @@ docker compose -f docker/docker-compose-dev.yml down -v
 
 **Desenvolvimento local:**
 
-- Banco: PostgreSQL em localhost:5432
+- Banco: MongoDB em localhost:27017
 - App: http://localhost:8080
 - Sem profile especial — pega a `application.yaml` default
 
@@ -241,19 +239,18 @@ docker compose -f docker/docker-compose-dev.yml down -v
 
 - App roda num container Docker
 - Seta `ENVIRONMENT=docker` automaticamente
-- Banco fica em `postgres:5432` (nome do hostname no Docker)
+- Banco (MongoDB) fica em `mongodb:27017` (nome do hostname no Docker)
 - App na porta 8080, SonarQube na 9000
 
 **Durante testes:**
 
-- BD em memória (H2)
+- Mongock desligado no profile `test` (não há Mongo em CI)
 - Profile `test` ativa automaticamente
-- Migrations desligadas (schema é criado fresh cada vez)
 
 **Credenciais padrão (de desenvolvimento):**
 
-- Host BD: `localhost` (ou `postgres` se Docker)
-- Porta: 5432
+- Host MongoDB: `localhost` (ou `mongodb` se Docker)
+- Porta: 27017
 - Database: `lata_velha`
 - Usuário: `admin`
 - Senha: `admin123`
@@ -385,11 +382,10 @@ Quando terminar, voltar em http://localhost:9000 e clicar no projeto **Lata-Velh
 
 ## Infraestrutura (Terraform + EKS)
 
-VPC, EKS, RDS, ECR, ALB interno, API Gateway e autoscaling provisionados na AWS com Terraform,
-divididos entre quatro repos: [`infra`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra)
-(base + API Gateway), [`infra-db`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra-db)
-(banco), [`lambda`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-lambda) (login por CPF +
-authorizer) e este repo (deploy da aplicação).
+VPC, EKS, ECR, ALB interno, API Gateway e autoscaling provisionados na AWS com Terraform,
+divididos entre: [`infra`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-infra)
+(base + API Gateway), [`lambda`](https://github.com/lataVelha/lata-velha-pos-tech-fiap-lambda)
+(authorizer JWT) e este repo (MongoDB no cluster + deploy da aplicação).
 
 > Documentação do deploy da aplicação: [`terraform/README.md`](terraform/README.md)
 
@@ -402,13 +398,13 @@ authorizer) e este repo (deploy da aplicação).
 | Java              | 21        | Linguagem principal               |
 | Spring Boot       | 3.2.5     | Framework web e DI                |
 | Spring Security   | via 3.2   | Autenticação JWT com RSA          |
-| Spring Data JPA   | via 3.2   | Persistência + Hibernate          |
-| PostgreSQL        | 15        | Banco de dados relacional         |
-| Flyway            | via 3.2   | Versionamento de migrations       |
+| Spring Data MongoDB | via 3.2 | Persistência NoSQL               |
+| MongoDB           | 7         | Banco de dados NoSQL              |
+| Mongock           | via 5     | Versionamento de migrations Mongo |
 | Springdoc OpenAPI | 2.6.0     | Documentação interativa (Swagger) |
 | JUnit 5           | via 3.2   | Testes unitários                  |
 | Mockito           | via 3.2   | Mocks em testes                   |
-| H2 Database       | test      | BD em memória para testes         |
+| Mongo (test)      | -         | Mongock desligado nos testes      |
 | JaCoCo            | 0.8.12    | Cobertura de testes               |
 | SonarQube         | Community | Análise estática de código        |
 | Docker Compose    | 3.8       | Orquestração de containers        |

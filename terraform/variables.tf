@@ -5,7 +5,7 @@ variable "region" {
 }
 
 variable "state_bucket" {
-  description = "Bucket S3 onde este state e gravado e onde o infra-db publica o dele"
+  description = "Bucket S3 onde este state e gravado e onde o state do messaging e publicado"
   type        = string
 }
 
