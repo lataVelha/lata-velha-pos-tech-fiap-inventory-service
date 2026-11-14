@@ -1,7 +1,7 @@
 package br.com.lata.velha.ordem_servico.application.event_handlers;
 
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaestoque.ReceberServiceEndedUseCase;
-import br.com.lata.velha.ordem_servico.domain.events.ServiceEndedEvent;
+import br.com.lata.velha.shared.domain.events.ServiceEndedEvent;
 import br.com.lata.velha.shared.application.gateways.EventHandler;
 
 public class ServiceEndedEventHandler implements EventHandler<ServiceEndedEvent> {

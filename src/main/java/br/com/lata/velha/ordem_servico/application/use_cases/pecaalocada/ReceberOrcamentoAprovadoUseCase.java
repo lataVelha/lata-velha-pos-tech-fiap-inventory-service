@@ -3,8 +3,8 @@ package br.com.lata.velha.ordem_servico.application.use_cases.pecaalocada;
 import br.com.lata.velha.ordem_servico.domain.entities.Peca;
 import br.com.lata.velha.ordem_servico.domain.entities.PecaAlocada;
 import br.com.lata.velha.ordem_servico.domain.enums.StatusPecaAlocada;
-import br.com.lata.velha.ordem_servico.domain.events.InventoryCheckedEvent;
-import br.com.lata.velha.ordem_servico.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.InventoryCheckedEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 

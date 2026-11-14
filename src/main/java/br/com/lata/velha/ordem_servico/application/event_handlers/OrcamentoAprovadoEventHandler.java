@@ -1,7 +1,7 @@
 package br.com.lata.velha.ordem_servico.application.event_handlers;
 
 import br.com.lata.velha.ordem_servico.application.use_cases.pecaalocada.ReceberOrcamentoAprovadoUseCase;
-import br.com.lata.velha.ordem_servico.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
 import br.com.lata.velha.shared.application.gateways.EventHandler;
 
 public class OrcamentoAprovadoEventHandler implements EventHandler<OrcamentoAprovadoEvent> {

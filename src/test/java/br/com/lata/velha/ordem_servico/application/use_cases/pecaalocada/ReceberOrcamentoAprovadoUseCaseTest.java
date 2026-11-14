@@ -3,8 +3,8 @@ package br.com.lata.velha.ordem_servico.application.use_cases.pecaalocada;
 import br.com.lata.velha.ordem_servico.domain.entities.Peca;
 import br.com.lata.velha.ordem_servico.domain.entities.PecaAlocada;
 import br.com.lata.velha.ordem_servico.domain.enums.StatusPecaAlocada;
-import br.com.lata.velha.ordem_servico.domain.events.InventoryCheckedEvent;
-import br.com.lata.velha.ordem_servico.domain.events.OrcamentoAprovadoEvent;
+import br.com.lata.velha.shared.domain.events.InventoryCheckedEvent;
+import br.com.lata.velha.shared.domain.events.OrcamentoAprovadoEvent;
 import br.com.lata.velha.shared.application.gateways.EventPublisher;
 import br.com.lata.velha.shared.application.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +67,7 @@ class ReceberOrcamentoAprovadoUseCaseTest {
         when(gateway.getTodasPecaAlocadaPorExecucaoServicoId(EXECUCAO_ID))
                 .thenReturn(List.of(alocada("10", StatusPecaAlocada.RESERVADA)));
 
-        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, List.of(item)));
+        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null, List.of(item)));
 
         var conferirCaptor = ArgumentCaptor.forClass(ConferirEstoqueExecucaoUseCase.Input.class);
         verify(conferirEstoqueExecucaoUseCase).execute(conferirCaptor.capture());
@@ -92,7 +92,7 @@ class ReceberOrcamentoAprovadoUseCaseTest {
         when(gateway.getTodasPecaAlocadaPorExecucaoServicoId(EXECUCAO_ID))
                 .thenReturn(List.of(alocada("10", StatusPecaAlocada.PARCIAL)));
 
-        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, List.of(item)));
+        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null, List.of(item)));
 
         verifyNoInteractions(conferirEstoqueExecucaoUseCase);
         var eventCaptor = ArgumentCaptor.forClass(InventoryCheckedEvent.class);
@@ -109,7 +109,7 @@ class ReceberOrcamentoAprovadoUseCaseTest {
         when(gateway.getTodasPecaAlocadaPorExecucaoServicoId(EXECUCAO_ID))
                 .thenReturn(List.of(alocada("10", StatusPecaAlocada.INSTALADA)));
 
-        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, List.of(item)));
+        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null, List.of(item)));
 
         var eventCaptor = ArgumentCaptor.forClass(InventoryCheckedEvent.class);
         verify(eventPublisher).publish(eventCaptor.capture());
@@ -129,7 +129,7 @@ class ReceberOrcamentoAprovadoUseCaseTest {
                 .thenReturn(List.of(alocada("10", StatusPecaAlocada.RESERVADA),
                         alocada("20", StatusPecaAlocada.RESERVADA)));
 
-        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, List.of(item1, item2)));
+        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null, List.of(item1, item2)));
 
         verify(gateway, never()).getPecasPorIds(any());
         var eventCaptor = ArgumentCaptor.forClass(InventoryCheckedEvent.class);
@@ -140,7 +140,7 @@ class ReceberOrcamentoAprovadoUseCaseTest {
     @Test
     @DisplayName("deve publicar InventoryChecked sem itens quando o evento não tem peças")
     void devePublicarSemItensQuandoEventoVazio() {
-        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null));
+        useCase.execute(new OrcamentoAprovadoEvent(OS_ID, null, null));
 
         var eventCaptor = ArgumentCaptor.forClass(InventoryCheckedEvent.class);
         verify(eventPublisher).publish(eventCaptor.capture());
