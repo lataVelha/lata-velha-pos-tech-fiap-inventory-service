@@ -4,6 +4,7 @@ import br.com.lata.velha.ordem_servico.application.controllers.pecaestoque.PecaE
 import br.com.lata.velha.ordem_servico.application.dtos.request.AjustarPecaEstoqueRequest;
 import br.com.lata.velha.ordem_servico.application.dtos.request.MovimentarPecaEstoqueRequest;
 import br.com.lata.velha.ordem_servico.application.dtos.response.PecaEstoqueResponse;
+import br.com.lata.velha.shared.infrastructure.observability.SpanAttributes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,8 @@ public class PecaEstoqueController {
     @ApiResponse(responseCode = "200", description = "Estoque consultado com sucesso")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada ou estoque ainda não inicializado")
     public ResponseEntity<PecaEstoqueResponse> buscar(@PathVariable String pecaId) {
+        SpanAttributes.set("peca.id", pecaId);
+
         return ResponseEntity.ok(cleanController.buscar(pecaId));
     }
 
@@ -41,6 +44,8 @@ public class PecaEstoqueController {
     public ResponseEntity<PecaEstoqueResponse> entrada(
             @PathVariable String pecaId,
             @Valid @RequestBody MovimentarPecaEstoqueRequest request) {
+        SpanAttributes.set("peca.id", pecaId);
+
         return ResponseEntity.ok(cleanController.entrada(pecaId, request));
     }
 
@@ -53,6 +58,8 @@ public class PecaEstoqueController {
     public ResponseEntity<PecaEstoqueResponse> saida(
             @PathVariable String pecaId,
             @Valid @RequestBody MovimentarPecaEstoqueRequest request) {
+        SpanAttributes.set("peca.id", pecaId);
+
         return ResponseEntity.ok(cleanController.saida(pecaId, request));
     }
 
@@ -65,6 +72,8 @@ public class PecaEstoqueController {
     public ResponseEntity<PecaEstoqueResponse> ajustar(
             @PathVariable String pecaId,
             @Valid @RequestBody AjustarPecaEstoqueRequest request) {
+        SpanAttributes.set("peca.id", pecaId);
+
         return ResponseEntity.ok(cleanController.ajustar(pecaId, request));
     }
 }

@@ -5,6 +5,7 @@ import br.com.lata.velha.ordem_servico.application.dtos.request.AtualizarPecaReq
 import br.com.lata.velha.ordem_servico.application.dtos.request.CadastrarPecaRequest;
 import br.com.lata.velha.ordem_servico.application.dtos.response.PecaResponse;
 import br.com.lata.velha.shared.domain.pagination.PaginatedResult;
+import br.com.lata.velha.shared.infrastructure.observability.SpanAttributes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,6 +47,7 @@ public class PecaController {
     @ApiResponse(responseCode = "200", description = "Peça encontrada")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
     public ResponseEntity<PecaResponse> buscarPorId(@PathVariable String id) {
+        SpanAttributes.set("peca.id", id);
         return ResponseEntity.ok(cleanController.buscarPorId(id));
     }
 
@@ -57,6 +59,7 @@ public class PecaController {
     public ResponseEntity<PecaResponse> atualizar(
             @PathVariable String id,
             @Valid @RequestBody AtualizarPecaRequest request) {
+        SpanAttributes.set("peca.id", id);
         return ResponseEntity.ok(cleanController.atualizar(id, request));
     }
 
@@ -66,6 +69,7 @@ public class PecaController {
     @ApiResponse(responseCode = "204", description = "Peça desativada")
     @ApiResponse(responseCode = "404", description = "Peça não encontrada")
     public ResponseEntity<Void> desativar(@PathVariable String id) {
+        SpanAttributes.set("peca.id", id);
         cleanController.desativar(id);
         return ResponseEntity.noContent().build();
     }
