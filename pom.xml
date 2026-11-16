@@ -132,6 +132,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-sdk-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- H2 - banco em memória para testes de integração -->
 		<dependency>
 			<groupId>com.h2database</groupId>
